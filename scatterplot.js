@@ -1,3 +1,51 @@
+d3.csv("object_list.csv", function(csv) {
+    for (var i=0; i<csv.length; ++i) {
+        csv[i].id= Number(csv[i].id);
+        csv[i].period= Number(csv[i].period);
+    }
+    var select = d3.select("#selection").append("select")
+
+    select.on("change", function() {
+        var id = this.options[this.selectedIndex].text;
+        var period = this.options[this.selectedIndex].value;
+
+        // clear previous plot
+        d3.select("#plot").selectAll("svg").remove();
+
+        // plot current selection
+        if (period > 0) {
+            plotObject(id, period);
+        } else {
+            alert("Not a periodic object.")
+        }
+    });
+
+    select.selectAll("option")
+          .data(csv)
+          .enter()
+          .append("option")
+          .attr("id", function (d) { return d.id;})
+          .attr("value", function (d) { return d.period; })
+          .text(function (d) { return d.id; });
+
+});
+
+function plotObject(id, period) {
+    var data_file = "data/"+id.toString()+".dat.json";
+
+    d3.json(data_file, function(json) {
+        // Load Data
+        for (var i=0; i<json.length; ++i) {
+            json[i].time = Number(json[i].time);
+            json[i].mag = Number(json[i].mag);
+            json[i].error = Number(json[i].error);
+        }
+
+        plotTimeMag(json, 1000, 400);
+        plotPhaseMag(json, period, 1000, 400);
+    });
+};
+
 function plotTimeMag(data, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
@@ -92,16 +140,3 @@ function plotPhaseMag(data, period, width, height) {
           .attr("transform", "translate(50, 0)")
           .call(yAxis);
 };
-
-d3.json("allDAT/29848.dat.json", function(json) {
-    // Load Data
-    for (var i=0; i<json.length; ++i) {
-        json[i].time = Number(json[i].time);
-        json[i].mag = Number(json[i].mag);
-        json[i].error = Number(json[i].error);
-    }
-    var period = 0.557009;
-
-    plotTimeMag(json, 1000, 400);
-    plotPhaseMag(json, period, 1000, 400);
-});
