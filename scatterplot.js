@@ -1,4 +1,4 @@
-d3.csv("object_list.csv", function(csv) {
+d3.csv("data/object_list.csv", function(csv) {
     for (var i=0; i<csv.length; ++i) {
         csv[i].id= Number(csv[i].id);
         csv[i].period= Number(csv[i].period);
@@ -6,18 +6,14 @@ d3.csv("object_list.csv", function(csv) {
     var select = d3.select("#selection").append("select")
 
     select.on("change", function() {
-        var id = this.options[this.selectedIndex].text;
+        var id = this.options[this.selectedIndex].text.split(" ")[0];
         var period = this.options[this.selectedIndex].value;
 
         // clear previous plot
         d3.select("#plot").selectAll("svg").remove();
 
         // plot current selection
-        if (period > 0) {
-            plotObject(id, period);
-        } else {
-            alert("Not a periodic object.")
-        }
+        plotObject(id, period);
     });
 
     select.selectAll("option")
@@ -26,7 +22,12 @@ d3.csv("object_list.csv", function(csv) {
           .append("option")
           .attr("id", function (d) { return d.id;})
           .attr("value", function (d) { return d.period; })
-          .text(function (d) { return d.id; });
+          .text(function (d) {
+              if(d.period > 0)
+                  return d.id;
+              else
+                  return d.id+" *";
+          });
 
 });
 
@@ -42,7 +43,9 @@ function plotObject(id, period) {
         }
 
         plotTimeMag(json, 1000, 400);
-        plotPhaseMag(json, period, 1000, 400);
+        if (period > 0) {
+            plotPhaseMag(json, period, 1000, 400);
+        }
     });
 };
 
