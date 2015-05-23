@@ -2,7 +2,6 @@ function plotTimeMag(data, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
 
-    // Plot mag vs. time
     var plotWidth = width;
     var plotHeight = height;
 
@@ -40,13 +39,12 @@ function plotPhaseMag(data, period, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
 
+
     for(var i = 0; i < data.length; i ++) {
         t = data[i].time - timeExtent[0]
-        data[i].phase= t/period - Math.floor(t/period);
+        data[i].phase = t/period - Math.floor(t/period);
     }
-    var phaseExtent = d3.extent(data, function(row) { return row.phase; });
 
-    // Plot mag vs. time
     var plotWidth = width;
     var plotHeight = height;
 
@@ -60,21 +58,36 @@ function plotPhaseMag(data, period, width, height) {
                .attr("width", plotWidth)
                .attr("height", plotHeight)
 
-    yAxis.orient("left");
-    svgSel.selectAll("circle")
-          .data(data)
-          .enter()
-          .append("circle")
-          .attr("fill", "red")
-          .attr("stroke", "black")
-          .attr("cx", function(d) { return xScale(d.phase); })
-          .attr("cy", function(d) { return yScale(d.mag); })
-          .attr("r", 3);
+    circleSel = svgSel.selectAll("circle").data(data).enter()
+
+    circleSel.append("circle")
+             .attr("fill", "red")
+             .attr("stroke", "black")
+             .attr("cx", function(d) { return xScale(d.phase); })
+             .attr("cy", function(d) { return yScale(d.mag); })
+             .attr("r", 3);
+
+    circleSel.append("circle")
+             .filter(function(d) { return d.phase - 1 >= -0.5; })
+             .attr("fill", "red")
+             .attr("stroke", "black")
+             .attr("cx", function(d) { return xScale(d.phase-1); })
+             .attr("cy", function(d) { return yScale(d.mag); })
+             .attr("r", 3);
+
+    circleSel.append("circle")
+             .filter(function(d) { return d.phase + 1 <= 1.5; })
+             .attr("fill", "red")
+             .attr("stroke", "black")
+             .attr("cx", function(d) { return xScale(d.phase+1); })
+             .attr("cy", function(d) { return yScale(d.mag); })
+             .attr("r", 3);
 
     svgSel.append("g")
           .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
           .call(xAxis);
 
+    yAxis.orient("left");
     svgSel.append("g")
           .attr("transform", "translate(50, 0)")
           .call(yAxis);
