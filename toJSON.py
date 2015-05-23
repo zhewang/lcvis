@@ -8,7 +8,10 @@ def DatToJson(fname):
 
     f_in = open(fname, 'r')
     for line in f_in.readlines():
-        data.append(line.split())
+        time, mag, error = line.split()
+        data.append({"time": float(time),
+                     "mag": float(mag),
+                     "error": float(error)})
 
     f_out = open(fname+'.json', 'w')
     f_out.write(json.dumps(data, sort_keys=True, indent=4))
