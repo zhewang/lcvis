@@ -29,6 +29,7 @@ d3.csv("data/object_list.csv", function(csv) {
                   return d.id+" *";
           });
 
+    plotObject(csv[0].id, csv[0].period);
 });
 
 function plotObject(id, period) {
