@@ -6,7 +6,7 @@ import numpy as np
 from supersmoother import SuperSmoother
 
 
-def fitCurve(fileName, period):
+def fitCurve(fileName, period, saveFileName):
     lc_file = open(fileName, 'r')
     lc_data = json.load(lc_file)
 
@@ -26,7 +26,7 @@ def fitCurve(fileName, period):
     data = []
     data.append({"phase": x.tolist(),
                 "mag": model.predict(x).tolist()})
-    f_out = open(fileName+".fit", 'w')
+    f_out = open(saveFileName, 'w')
     f_out.write(json.dumps(data, sort_keys=True, indent=4))
     f_out.close()
 
@@ -45,4 +45,5 @@ if __name__ == '__main__':
         for row in objects:
             obj_id = int(row[0])
             period = float(row[1])
-            fitCurve(args.path+'/'+str(obj_id)+'.dat.json', period)
+            fitCurve(args.path+'/'+str(obj_id)+'.dat.json', period,
+                     args.path+'/'+str(obj_id)+'.fit.json')
