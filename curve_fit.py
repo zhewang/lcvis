@@ -45,5 +45,7 @@ if __name__ == '__main__':
         for row in objects:
             obj_id = int(row[0])
             period = float(row[1])
-            fitCurve(args.path+'/'+str(obj_id)+'.dat.json', period,
-                     args.path+'/'+str(obj_id)+'.fit.json')
+            print("Fitting {}".format(obj_id))
+            if period > 0:
+                fitCurve(args.path+'/'+str(obj_id)+'.dat.json', period,
+                         args.path+'/'+str(obj_id)+'.fit.json')
