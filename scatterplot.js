@@ -156,7 +156,7 @@ function plotPhaseMag(data, period, curve_points, width, height) {
     // plot curve
     var lineFunction = d3.svg.line()
                          .x(function(d) { return xScale(d.x); })
-                         .y(function(d) {console.log(yScale(d.y)); return yScale(d.y); })
+                         .y(function(d) { return yScale(d.y); })
                          .interpolate("basis");
 
     svgSel.append('path')
