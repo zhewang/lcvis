@@ -45,7 +45,16 @@ function plotObject(id, period) {
 
         plotTimeMag(json, 1000, 400);
         if (period > 0) {
-            plotPhaseMag(json, period, 1000, 400);
+            var curve_data_file = "data/"+id.toString()+".fit.json";
+            var points = [];
+            d3.json(curve_data_file, function(curve_data) {
+                for (var i = 0; i < curve_data[0].mag.length; ++i) {
+                    points[i] = {'x': Number(curve_data[0].phase[i]),
+                                 'y': Number(curve_data[0].mag[i])}
+                }
+
+                plotPhaseMag(json, period, points, 1000, 400);
+            });
         }
     });
 };
@@ -87,7 +96,7 @@ function plotTimeMag(data, width, height) {
           .call(yAxis);
 };
 
-function plotPhaseMag(data, period, width, height) {
+function plotPhaseMag(data, period, curve_points, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
 
@@ -143,4 +152,16 @@ function plotPhaseMag(data, period, width, height) {
     svgSel.append("g")
           .attr("transform", "translate(50, 0)")
           .call(yAxis);
+
+    // plot curve
+    var lineFunction = d3.svg.line()
+                         .x(function(d) { return xScale(d.x); })
+                         .y(function(d) {console.log(yScale(d.y)); return yScale(d.y); })
+                         .interpolate("basis");
+
+    svgSel.append('path')
+          .attr('d', lineFunction(curve_points))
+          .attr('stroke', 'blue')
+          .attr('stroke-width', '2')
+          .attr('fill', 'none')
 };
