@@ -15,13 +15,13 @@ def fitCurve(fileName, period, saveFileName):
     t = MJD - MJD.min()
     phi = np.array([i/period - int(i/period) for i in t])
 
-    xdata = np.hstack([phi-1, phi, phi+1])
-    ydata = np.hstack([Mag, Mag, Mag])
+    xdata = phi
+    ydata = Mag
 
-    model = SuperSmoother(period=1)
+    model = SuperSmoother()
     model.fit(xdata, ydata)
 
-    x = np.linspace(-0.5, 1.5)
+    x = np.linspace(0, 1)
 
     data = []
     data.append({"phase": x.tolist(),
