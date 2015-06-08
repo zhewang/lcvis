@@ -159,6 +159,16 @@ function plotPhaseMag(data, period, curve_points, width, height) {
                          .y(function(d) { return yScale(d.y); })
                          .interpolate("basis");
 
+    var front_data = [];
+    var end_data = [];
+    for (var i = 0; i < curve_points.length; ++i) {
+        if (curve_points[i].x > 0.5)
+            front_data.push({'x':curve_points[i].x-1, 'y':curve_points[i].y});
+        else
+            end_data.push({'x':curve_points[i].x+1, 'y':curve_points[i].y});
+    }
+    curve_points = front_data.concat(curve_points, end_data);
+
     svgSel.append('path')
           .attr('d', lineFunction(curve_points))
           .attr('stroke', 'blue')
