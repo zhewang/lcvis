@@ -21,11 +21,16 @@ def fitCurve(fileName, period, saveFileName):
     model = SuperSmoother()
     model.fit(xdata, ydata)
 
-    x = np.linspace(0, 1)
+    x = np.linspace(0, 1).tolist()
+    y = model.predict(x).tolist()
 
-    data = []
-    data.append({"phase": x.tolist(),
-                "mag": model.predict(x).tolist()})
+    data = [{"phase": [], "mag": []}]
+
+    for i in range(len(y)):
+        if y[i] == y[i]:
+            data[0]["phase"].append(x[i])
+            data[0]["mag"].append(y[i])
+
     f_out = open(saveFileName, 'w')
     f_out.write(json.dumps(data, sort_keys=True, indent=4))
     f_out.close()
