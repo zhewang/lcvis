@@ -54,6 +54,7 @@ function plotObject(id, period) {
                 }
 
                 plotPhaseMag(json, period, points, 1000, 400);
+                plotPhaseMagScaled(json, period, points, 500, 400);
             });
         }
     });
@@ -99,7 +100,6 @@ function plotTimeMag(data, width, height) {
 function plotPhaseMag(data, period, curve_points, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
-
 
     for(var i = 0; i < data.length; i ++) {
         t = data[i].time - timeExtent[0]
@@ -168,6 +168,90 @@ function plotPhaseMag(data, period, curve_points, width, height) {
             end_data.push({'x':curve_points[i].x+1, 'y':curve_points[i].y});
     }
     curve_points = front_data.concat(curve_points, end_data);
+
+    svgSel.append('path')
+          .attr('d', lineFunction(curve_points))
+          .attr('stroke', 'blue')
+          .attr('stroke-width', '2')
+          .attr('fill', 'none')
+};
+
+function plotPhaseMagScaled(data, period, curve_points, width, height) {
+    var timeExtent = d3.extent(data, function(row) { return row.time; });
+    var magExtent = d3.extent(data, function(row) { return row.mag; });
+    var magAverage = d3.mean(data, function(row) {return row.mag});
+
+    var max_peak = 100;
+    var max_phase = -1;
+    for (var i = 0; i < curve_points.length; i ++) {
+        if (curve_points[i].y < max_peak) {
+            max_peak = curve_points[i].y;
+            max_phase = curve_points[i].x;
+        }
+    }
+
+    var shift = max_phase - 0.3;
+
+    function shiftFunction(d) {
+        d = d - shift;
+        if (d > 1) d = d - 1;
+        if (d < 0) d = d + 1;
+        return d;
+    }
+
+    for(var i = 0; i < data.length; i ++) {
+        t = data[i].time - timeExtent[0]
+        data[i].phase = shiftFunction(t/period - Math.floor(t/period));
+    }
+
+    var plotWidth = width;
+    var plotHeight = height;
+
+    var xScale = d3.scale.linear().domain([0, 1]).range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().domain([1, -1]).range([plotHeight-30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale).tickValues([-0.5, 0, 0.5, 1, 1.5]);
+    var yAxis = d3.svg.axis().scale(yScale);
+
+    svgSel = d3.select("#plot")
+               .append("svg")
+               .attr("width", plotWidth)
+               .attr("height", plotHeight)
+
+    circleSel = svgSel.selectAll("circle").data(data).enter()
+
+    circleSel.append("circle")
+             .attr("fill", "red")
+             .attr("stroke", "black")
+             .attr("cx", function(d) { return xScale(d.phase); })
+             .attr("cy", function(d) { return yScale(d.mag-magAverage); })
+             .attr("r", 3);
+
+    svgSel.append("g")
+          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
+          .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+          .attr("transform", "translate(50, 0)")
+          .call(yAxis);
+
+    // plot curve
+    for (var i = 0; i < curve_points.length; i ++) {
+        curve_points[i].x = shiftFunction(curve_points[i].x);
+    }
+
+    function sortFunction(a, b) {
+        if (a.x == b.x) return 0;
+        else
+            return (a.x < b.x) ? -1:1;
+    }
+
+    curve_points.sort(sortFunction);
+
+    var lineFunction = d3.svg.line()
+                         .x(function(d) { return xScale(d.x); })
+                         .y(function(d) { return yScale(d.y-magAverage); })
+                         .interpolate("basis");
 
     svgSel.append('path')
           .attr('d', lineFunction(curve_points))
