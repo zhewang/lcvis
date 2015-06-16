@@ -44,7 +44,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     matrix = []
-    j = json.load(open('{}/plv_linear.json'.format(args.path)))
+    j = json.load(open('{}/PLV_LINEAR.json'.format(args.path)))
 
     metadata = dict((obj["LINEARobjectID"], obj) for obj in j["data"])
     obj_ids = []
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     data = []
 
     for obj_id, row in zip(obj_ids, matrix):
-        data.append([results.project(row)[0], results.project(row)[1], metadata[obj_id]["LCtype"]])
+        data.append([results.project(row)[0], results.project(row)[1], metadata[obj_id]["LCtype"], obj_id])
 
     f_out = open(args.path+'/pca.json', 'w')
     f_out.write(json.dumps(data))
