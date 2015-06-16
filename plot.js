@@ -4,8 +4,6 @@ var plots = {};
 
 function changePlot(newPlotId) {
     var period = objs[newPlotId].period;
-    // clear previous plot
-    d3.select("#plot").selectAll("svg").remove();
 
     // plot current selection
     plotObject(newPlotId, period);
@@ -44,6 +42,9 @@ d3.csv("data/object_list.csv", function(csv) {
 
     // plot the first object when starting
     plotObject(csv[0].id, csv[0].period);
+
+    // plot color coded PCA results according to LCType
+    plotPCAColored();
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -79,9 +80,6 @@ function plotObject(id, period) {
 
                 // plot the result of PCA
                 plotPCA();
-
-                // plot color coded PCA results according to LCType
-                plotPCAColored();
             });
         }
     });
@@ -93,7 +91,7 @@ function createTimeMagPlot(data, width, height) {
     var plot = {};
     var plotWidth = width;
     var plotHeight = height;
-    
+
     var xScale = d3.scale.linear().range([50, plotWidth-30]);
     var yScale = d3.scale.linear().range([plotHeight-30, 30]);
     var xAxis = d3.svg.axis().scale(xScale).ticks(5);
@@ -162,7 +160,7 @@ function plotTimeMag(data, width, height) {
 function createPhaseMagPlot(data, period, curve_points, width, height) {
     var plot = {};
     var plotWidth = width;
-    var plotHeight = height;    
+    var plotHeight = height;
 
     var xScale = d3.scale.linear().domain([-0.5, 1.5]).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().range([plotHeight-30, 30]);
@@ -175,7 +173,7 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
     plot.yAxis = yAxis;
     yAxis.orient("left");
 
-    plot.setCircleProperties = function(shift) { 
+    plot.setCircleProperties = function(shift) {
         return function(sel) {
             sel
                 .attr("fill", "red")
@@ -197,7 +195,7 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
           .attr("transform", "translate(0, "+(plotHeight-30).toString()+")");
     plot.yAxisGroup = svgSel.append("g")
           .attr("transform", "translate(50, 0)");
-    plot.curveSel = svgSel.append("g");    
+    plot.curveSel = svgSel.append("g");
 
     return plot;
 }
@@ -440,7 +438,7 @@ function plotPCAColored() {
     var xAxis = d3.svg.axis().scale(xScale);
     var yAxis = d3.svg.axis().scale(yScale);
 
-    svgSel = d3.select("#plot")
+    svgSel = d3.select("#plotPCAColored")
                .append("svg")
                .attr("width", plotWidth)
                .attr("height", plotHeight)
