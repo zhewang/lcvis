@@ -38,15 +38,18 @@ def loadMagData(fileName):
 
     return result_mag
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('path', help='path to dataset folder')
     args = parser.parse_args()
 
     matrix = []
+    j = json.load(open('{}/plv_linear.json'.format(args.path)))
 
-    with open('{}/object_list.csv'.format(args.path), newline='') as csvfile:
+    metadata = dict((obj["LINEARobjectID"], obj) for obj in j["data"])
+    obj_ids = []
+
+    with open('{}/object_list.csv'.format(args.path)) as csvfile:
         objects = csv.reader(csvfile)
         next(objects, None)
         for row in objects:
@@ -57,6 +60,7 @@ if __name__ == '__main__':
                 for i in range(50 - len(v)):
                     v.append(v[0])
                 matrix.append(v)
+                obj_ids.append(obj_id)
 
     vec = np.array(matrix)
     vec.shape = (len(matrix), 50)
@@ -64,8 +68,8 @@ if __name__ == '__main__':
 
     data = []
 
-    for i in matrix:
-        data.append([results.project(i)[0], results.project(i)[1]])
+    for obj_id, row in zip(obj_ids, matrix):
+        data.append([results.project(row)[0], results.project(row)[1], metadata[obj_id]["LCtype"]])
 
     f_out = open(args.path+'/pca.json', 'w')
     f_out.write(json.dumps(data))
