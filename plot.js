@@ -89,13 +89,13 @@ function plotTimeMag(data, width, height) {
 
     var xScale = d3.scale.linear().domain(timeExtent).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().domain([magExtent[1], magExtent[0]]).range([plotHeight-30, 30]);
-    var xAxis = d3.svg.axis().scale(xScale);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
 
     svgSel = d3.select("#plot")
                .append("svg")
                .attr("width", plotWidth)
-               .attr("height", plotHeight)
+               .attr("height", plotHeight);
 
     yAxis.orient("left");
     svgSel.selectAll("circle")
@@ -291,7 +291,7 @@ function plotPCA() {
 
     var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
-    var xAxis = d3.svg.axis().scale(xScale);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
 
     svgSel = d3.select("#plot")
