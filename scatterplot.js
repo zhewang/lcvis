@@ -29,9 +29,11 @@ d3.csv("data/object_list.csv", function(csv) {
                   return d.id+" *";
           });
 
+    // plot the first object when starting
     plotObject(csv[0].id, csv[0].period);
 });
 
+// plot a periodic astro-object
 function plotObject(id, period) {
     var data_file = "data/"+id.toString()+".dat.json";
 
@@ -43,6 +45,7 @@ function plotObject(id, period) {
             json[i].error = Number(json[i].error);
         }
 
+        // plot mag vs. time
         plotTimeMag(json, 1000, 400);
         if (period > 0) {
             var curve_data_file = "data/"+id.toString()+".fit.json";
@@ -53,8 +56,14 @@ function plotObject(id, period) {
                                  'y': Number(curve_data[0].mag[i])}
                 }
 
+                // plot mag vs. phase
                 plotPhaseMag(json, period, points, 1000, 400);
+
+                // plot scaled mag vs. phase
                 plotPhaseMagScaled(json, period, points, 500, 400);
+
+                // plot the result of PCA
+                plotPCA();
             });
         }
     });
@@ -259,3 +268,42 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
           .attr('stroke-width', '2')
           .attr('fill', 'none')
 };
+
+function plotPCA() {
+    d3.json("data/pca.json", function(data) {
+
+    var xExtent = d3.extent(data, function(row) { return row[0]; });
+    var yExtent = d3.extent(data, function(row) { return row[1]; });
+
+    var plotWidth = 800;
+    var plotHeight = 800;
+
+    var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale);
+    var yAxis = d3.svg.axis().scale(yScale);
+
+    svgSel = d3.select("#plot")
+               .append("svg")
+               .attr("width", plotWidth)
+               .attr("height", plotHeight)
+
+    circleSel = svgSel.selectAll("circle").data(data).enter()
+
+    circleSel.append("circle")
+             .attr("fill", "rgba(255,0,0,0.1)")
+             .attr("stroke", "none")
+             .attr("cx", function(d) { return xScale(d[0]); })
+             .attr("cy", function(d) { return yScale(d[1]); })
+             .attr("r", 3);
+
+    svgSel.append("g")
+          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
+          .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+          .attr("transform", "translate(50, 0)")
+          .call(yAxis);
+    });
+}
