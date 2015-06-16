@@ -64,6 +64,9 @@ function plotObject(id, period) {
 
                 // plot the result of PCA
                 plotPCA();
+
+                // plot color coded PCA results according to LCType
+                plotPCAColored();
             });
         }
     });
@@ -293,6 +296,49 @@ function plotPCA() {
     circleSel.append("circle")
              .attr("fill", "rgba(255,0,0,0.1)")
              .attr("stroke", "none")
+             .attr("cx", function(d) { return xScale(d[0]); })
+             .attr("cy", function(d) { return yScale(d[1]); })
+             .attr("r", 3);
+
+    svgSel.append("g")
+          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
+          .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+          .attr("transform", "translate(50, 0)")
+          .call(yAxis);
+    });
+}
+
+// color coded for different LCTypes
+function plotPCAColored() {
+    d3.json("data/pca.json", function(data) {
+
+    var xExtent = d3.extent(data, function(row) { return row[0]; });
+    var yExtent = d3.extent(data, function(row) { return row[1]; });
+
+    var colorCodes = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
+
+    var plotWidth = 800;
+    var plotHeight = 800;
+
+    var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale);
+    var yAxis = d3.svg.axis().scale(yScale);
+
+    svgSel = d3.select("#plot")
+               .append("svg")
+               .attr("width", plotWidth)
+               .attr("height", plotHeight)
+
+    circleSel = svgSel.selectAll("circle").data(data).enter()
+
+    circleSel.append("circle")
+             .attr("stroke", "none")
+             .attr("opacity", "0.2")
+             .attr("fill", function(d) { return colorCodes[d[2]]; })
              .attr("cx", function(d) { return xScale(d[0]); })
              .attr("cy", function(d) { return yScale(d[1]); })
              .attr("r", 3);
