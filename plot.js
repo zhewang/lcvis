@@ -1,5 +1,7 @@
 var objs = {};
 
+var plots = {};
+
 function changePlot(newPlotId) {
     var period = objs[newPlotId].period;
     // clear previous plot
@@ -44,6 +46,7 @@ d3.csv("data/object_list.csv", function(csv) {
     plotObject(csv[0].id, csv[0].period);
 });
 
+//////////////////////////////////////////////////////////////////////////////
 // plot a periodic astro-object
 function plotObject(id, period) {
     var data_file = "data/"+id.toString()+".dat.json";
@@ -64,7 +67,8 @@ function plotObject(id, period) {
             d3.json(curve_data_file, function(curve_data) {
                 for (var i = 0; i < curve_data[0].mag.length; ++i) {
                     points[i] = {'x': Number(curve_data[0].phase[i]),
-                                 'y': Number(curve_data[0].mag[i])}
+                                 'y': Number(curve_data[0].mag[i])
+                                };
                 }
 
                 // plot mag vs. phase
@@ -83,104 +87,159 @@ function plotObject(id, period) {
     });
 };
 
-function plotTimeMag(data, width, height) {
-    var timeExtent = d3.extent(data, function(row) { return row.time; });
-    var magExtent = d3.extent(data, function(row) { return row.mag; });
+//////////////////////////////////////////////////////////////////////////////
 
+function createTimeMagPlot(data, width, height) {
+    var plot = {};
     var plotWidth = width;
     var plotHeight = height;
-
-    var xScale = d3.scale.linear().domain(timeExtent).range([50, plotWidth-30]);
-    var yScale = d3.scale.linear().domain([magExtent[1], magExtent[0]]).range([plotHeight-30, 30]);
-    var xAxis = d3.svg.axis().scale(xScale);
+    
+    var xScale = d3.scale.linear().range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().range([plotHeight-30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
 
-    svgSel = d3.select("#plot")
-               .append("svg")
-               .attr("width", plotWidth)
-               .attr("height", plotHeight)
-
+    plot.xScale = xScale;
+    plot.yScale = yScale;
+    plot.xAxis = xAxis;
+    plot.yAxis = yAxis;
     yAxis.orient("left");
-    svgSel.selectAll("circle")
-          .data(data)
-          .enter()
-          .append("circle")
-          .attr("fill", "red")
-          .attr("stroke", "none")
-          .attr("cx", function(d) { return xScale(d.time); })
-          .attr("cy", function(d) { return yScale(d.mag); })
-          .attr("r", 3);
 
-    svgSel.append("g")
-          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
-          .call(xAxis);
+    plot.setCircleProperties = function(sel) {
+        sel
+            .attr("fill", "red")
+            .attr("stroke", "none")
+            .attr("cx", function(d) { return xScale(d.time); })
+            .attr("cy", function(d) { return yScale(d.mag); })
+            .attr("r", 3)    ;
+    };
 
-    svgSel.append("g")
-          .attr("transform", "translate(50, 0)")
-          .call(yAxis);
-};
+    var svgSel = d3.select("#plotTimeMag")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
 
-function plotPhaseMag(data, period, curve_points, width, height) {
+    plot.svgSel = svgSel;
+    plot.xAxisGroup = svgSel.append("g").attr("transform", "translate(0, "+(plotHeight-30).toString()+")");
+    plot.yAxisGroup = svgSel.append("g").attr("transform", "translate(50, 0)");
+
+    return plot;
+}
+
+function plotTimeMag(data, width, height) {
+    if (!plots.timeMag) {
+        plots.timeMag = createTimeMagPlot(data, width, height);
+    }
+    var plot = plots.timeMag;
+
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
-
-    for(var i = 0; i < data.length; i ++) {
-        t = data[i].time - timeExtent[0]
-        data[i].phase = t/period - Math.floor(t/period);
-    }
 
     var plotWidth = width;
     var plotHeight = height;
 
+    var xScale = plot.xScale.domain(timeExtent);
+    var yScale = plot.yScale.domain([magExtent[1], magExtent[0]]);
+
+    var svgSel = plot.svgSel;
+
+    var circleJoin = svgSel.selectAll("circle")
+          .data(data);
+
+    circleJoin.enter()
+          .append("circle")
+          .call(plot.setCircleProperties);
+
+    circleJoin.call(plot.setCircleProperties);
+    circleJoin.exit().remove();
+
+    plot.xAxisGroup.call(plot.xAxis);
+    plot.yAxisGroup.call(plot.yAxis);
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+function createPhaseMagPlot(data, period, curve_points, width, height) {
+    var plot = {};
+    var plotWidth = width;
+    var plotHeight = height;    
+
     var xScale = d3.scale.linear().domain([-0.5, 1.5]).range([50, plotWidth-30]);
-    var yScale = d3.scale.linear().domain([magExtent[1], magExtent[0]]).range([plotHeight-30, 30]);
+    var yScale = d3.scale.linear().range([plotHeight-30, 30]);
     var xAxis = d3.svg.axis().scale(xScale).tickValues([-0.5, 0, 0.5, 1, 1.5]);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
 
-    svgSel = d3.select("#plot")
-               .append("svg")
-               .attr("width", plotWidth)
-               .attr("height", plotHeight)
-
-    circleSel = svgSel.selectAll("circle").data(data).enter()
-
-    circleSel.append("circle")
-             .attr("fill", "red")
-             .attr("stroke", "none")
-             .attr("cx", function(d) { return xScale(d.phase); })
-             .attr("cy", function(d) { return yScale(d.mag); })
-             .attr("r", 3);
-
-    circleSel.append("circle")
-             .filter(function(d) { return d.phase - 1 >= -0.5; })
-             .attr("fill", "red")
-             .attr("stroke", "none")
-             .attr("cx", function(d) { return xScale(d.phase-1); })
-             .attr("cy", function(d) { return yScale(d.mag); })
-             .attr("r", 3);
-
-    circleSel.append("circle")
-             .filter(function(d) { return d.phase + 1 <= 1.5; })
-             .attr("fill", "red")
-             .attr("stroke", "none")
-             .attr("cx", function(d) { return xScale(d.phase+1); })
-             .attr("cy", function(d) { return yScale(d.mag); })
-             .attr("r", 3);
-
-    svgSel.append("g")
-          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
-          .call(xAxis);
-
+    plot.xScale = xScale;
+    plot.yScale = yScale;
+    plot.xAxis = xAxis;
+    plot.yAxis = yAxis;
     yAxis.orient("left");
-    svgSel.append("g")
-          .attr("transform", "translate(50, 0)")
-          .call(yAxis);
+
+    plot.setCircleProperties = function(shift) { 
+        return function(sel) {
+            sel
+                .attr("fill", "red")
+                .attr("stroke", "none")
+                .attr("cx", function(d) { return xScale(d.phase + shift); })
+                .attr("cy", function(d) { return yScale(d.mag); })
+                .attr("r", 3);
+        };
+    };
+
+    var svgSel = d3.select("#plotPhaseMag")
+        .append("svg")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight);
+
+    plot.svgSel = svgSel;
+    plot.circleSel = svgSel.append("g");
+    plot.xAxisGroup = svgSel.append("g")
+          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")");
+    plot.yAxisGroup = svgSel.append("g")
+          .attr("transform", "translate(50, 0)");
+    plot.curveSel = svgSel.append("g");    
+
+    return plot;
+}
+
+function plotPhaseMag(data, period, curve_points, width, height) {
+    if (!plots.phaseMag) {
+        plots.phaseMag = createPhaseMagPlot(data, period, curve_points, width, height);
+    }
+    var plot = plots.phaseMag;
+    var timeExtent = d3.extent(data, function(row) { return row.time; });
+    var magExtent = d3.extent(data, function(row) { return row.mag; });
+    var t;
+
+    for(var i = 0; i < data.length; i ++) {
+        t = data[i].time - timeExtent[0];
+        data[i].phase = t/period - Math.floor(t/period);
+    }
+
+    var yScale = plot.yScale.domain([magExtent[1], magExtent[0]]);
+    var svgSel = plot.svgSel;
+    plot.circleSel.selectAll("circle").remove();
+    var circleSel = plot.circleSel.selectAll("circle").data(data).enter();
+
+    circleSel.append("circle")
+        .call(plot.setCircleProperties(0));
+
+    circleSel.append("circle")
+        .filter(function(d) { return d.phase - 1 >= -0.5; })
+        .call(plot.setCircleProperties(-1));
+
+    circleSel.append("circle")
+        .filter(function(d) { return d.phase + 1 <= 1.5; })
+        .call(plot.setCircleProperties(1));
+
+    plot.xAxisGroup.call(plot.xAxis);
+    plot.yAxisGroup.call(plot.yAxis);
 
     // plot curve
     var lineFunction = d3.svg.line()
-                         .x(function(d) { return xScale(d.x); })
-                         .y(function(d) { return yScale(d.y); })
-                         .interpolate("basis");
+        .x(function(d) { return plot.xScale(d.x); })
+        .y(function(d) { return yScale(d.y); })
+        .interpolate("basis");
 
     var front_data = [];
     var end_data = [];
@@ -192,17 +251,56 @@ function plotPhaseMag(data, period, curve_points, width, height) {
     }
     curve_points = front_data.concat(curve_points, end_data);
 
-    svgSel.append('path')
+    plot.curveSel.selectAll("path").remove();
+    plot.curveSel.append('path')
           .attr('d', lineFunction(curve_points))
           .attr('stroke', 'blue')
           .attr('stroke-width', '2')
-          .attr('fill', 'none')
+          .attr('fill', 'none');
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+function createPhaseMagScaledPlot(data, period, curve_points, width, height) {
+    var plot = {};
+    var plotWidth = width;
+    var plotHeight = height;
+
+    var xScale = d3.scale.linear().domain([0, 1]).range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().domain([1, -1]).range([plotHeight-30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale).tickValues([-0.5, 0, 0.5, 1, 1.5]);
+    var yAxis = d3.svg.axis().scale(yScale);
+    yAxis.orient("left");
+
+    var svgSel = d3.select("#plotPhaseMagScaled")
+               .append("svg")
+               .attr("width", plotWidth)
+               .attr("height", plotHeight);
+    plot.svgSel = svgSel;
+    plot.circleSel = svgSel.append("g");
+    plot.curveSel = svgSel.append("g");
+    plot.xAxisGroup = svgSel.append("g")
+        .attr("transform", "translate(0, "+(plotHeight-30).toString()+")");
+    plot.yAxisGroup = svgSel.append("g")
+        .attr("transform", "translate(50, 0)");
+    plot.xAxis = xAxis;
+    plot.yAxis = yAxis;
+    plot.xScale = xScale;
+    plot.yScale = yScale;
+
+    return plot;
+}
+
 function plotPhaseMagScaled(data, period, curve_points, width, height) {
+    if (!plots.phaseMagScale) {
+        plots.phaseMagScale = createPhaseMagScaledPlot(
+            data, period, curve_points, width, height);
+    }
+    var plot = plots.phaseMagScale;
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
-    var magAverage = d3.mean(data, function(row) {return row.mag});
+    var magAverage = d3.mean(data, function(row) { return row.mag; });
+    var t;
 
     var max_peak = 100;
     var max_phase = -1;
@@ -223,24 +321,22 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
     }
 
     for(var i = 0; i < data.length; i ++) {
-        t = data[i].time - timeExtent[0]
+        t = data[i].time - timeExtent[0];
         data[i].phase = shiftFunction(t/period - Math.floor(t/period));
     }
 
     var plotWidth = width;
     var plotHeight = height;
 
-    var xScale = d3.scale.linear().domain([0, 1]).range([50, plotWidth-30]);
-    var yScale = d3.scale.linear().domain([1, -1]).range([plotHeight-30, 30]);
-    var xAxis = d3.svg.axis().scale(xScale).tickValues([-0.5, 0, 0.5, 1, 1.5]);
-    var yAxis = d3.svg.axis().scale(yScale);
+    var xScale = plot.xScale;
+    var yScale = plot.yScale;
+    var xAxis = plot.xAxis;
+    var yAxis = plot.yAxis;
 
-    svgSel = d3.select("#plot")
-               .append("svg")
-               .attr("width", plotWidth)
-               .attr("height", plotHeight)
+    var svgSel = plot.svgSel;
 
-    circleSel = svgSel.selectAll("circle").data(data).enter()
+    plot.circleSel.selectAll("circle").remove();
+    var circleSel = plot.circleSel.selectAll("circle").data(data).enter();
 
     circleSel.append("circle")
              .attr("fill", "red")
@@ -249,14 +345,8 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
              .attr("cy", function(d) { return yScale(d.mag-magAverage); })
              .attr("r", 3);
 
-    svgSel.append("g")
-          .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
-          .call(xAxis);
-
-    yAxis.orient("left");
-    svgSel.append("g")
-          .attr("transform", "translate(50, 0)")
-          .call(yAxis);
+    plot.xAxisGroup.call(plot.xAxis);
+    plot.yAxisGroup.call(plot.yAxis);
 
     // plot curve
     for (var i = 0; i < curve_points.length; i ++) {
@@ -276,14 +366,21 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
                          .y(function(d) { return yScale(d.y-magAverage); })
                          .interpolate("basis");
 
-    svgSel.append('path')
+    plot.curveSel.selectAll("path").remove();
+    plot.curveSel.append('path')
           .attr('d', lineFunction(curve_points))
           .attr('stroke', 'blue')
           .attr('stroke-width', '2')
-          .attr('fill', 'none')
+          .attr('fill', 'none');
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+var createdPCA = false;
 function plotPCA() {
+    if (createdPCA)
+        return;
+    createdPCA = true;
     d3.json("data/pca.json", function(data) {
 
     var xExtent = d3.extent(data, function(row) { return row[0]; });
@@ -294,15 +391,15 @@ function plotPCA() {
 
     var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
-    var xAxis = d3.svg.axis().scale(xScale);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
 
-    svgSel = d3.select("#plot")
-               .append("svg")
-               .attr("width", plotWidth)
-               .attr("height", plotHeight);
+    var svgSel = d3.select("#plotPCA")
+            .append("svg")
+            .attr("width", plotWidth)
+            .attr("height", plotHeight);
 
-    circleSel = svgSel.selectAll("circle").data(data).enter();
+    var circleSel = svgSel.selectAll("circle").data(data).enter();
 
     circleSel.append("circle")
             .classed("clickable", true)
