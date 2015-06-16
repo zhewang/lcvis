@@ -21,5 +21,5 @@ while True:
     obj = dict((c, r) for (c, r) in zip(cols, row))
     lst.append(obj)
 
-print json.dumps(lst)
+print json.dumps(result)
 
