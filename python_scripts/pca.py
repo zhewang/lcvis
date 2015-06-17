@@ -12,7 +12,21 @@ def findPeak(mag, phase):
         if mag[i] < magPeak:
             magPeak = mag[i]
             phasePeak = phase[i]
-    return magPeak, phasePeak
+
+    if magPeak < 0.1:
+        magPeakNeg = -100
+        phasePeakNeg = -1
+        for i in range(len(mag)):
+            if mag[i] > magPeakNeg:
+                magPeakNeg = mag[i]
+                phasePeakNeg = phase[i]
+
+        if abs(magPeakNeg) / abs(magPeak) > 3:
+            return phasePeakNeg
+        else:
+            return phasePeak
+    else:
+        return phasePeak
 
 
 def loadMagData(fileName):
@@ -21,9 +35,9 @@ def loadMagData(fileName):
     mag = np.array(data[0]["mag"])
     phase = np.array(data[0]["phase"])
 
-    magPeak, phasePeak = findPeak(mag, phase)
-
     magScaled = mag - np.mean(mag)
+    phasePeak = findPeak(magScaled, phase)
+
     shift = phasePeak - 0.3
     for i in range(len(phase)):
         phase[i] = phase[i] - shift
