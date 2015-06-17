@@ -6,6 +6,20 @@ import numpy as np
 from supersmoother import SuperSmoother
 
 
+def fillNaN(x, y):
+    length = len(x)
+    yy = []
+    for i in range(length):
+        if y[i] != y[i]:
+            for j in range(length):
+                if y[j % length] == y[j % length]:
+                    yy.append(y[j])
+                    break
+        else:
+            yy.append(y[i])
+    return x, yy
+
+
 def fitCurve(fileName, period, saveFileName):
     lc_file = open(fileName, 'r')
     lc_data = json.load(lc_file)
@@ -24,12 +38,13 @@ def fitCurve(fileName, period, saveFileName):
     x = np.linspace(0, 1).tolist()
     y = model.predict(x).tolist()
 
+    x, y = fillNaN(x, y)
+
     data = [{"phase": [], "mag": []}]
 
     for i in range(len(y)):
-        if y[i] == y[i]:
-            data[0]["phase"].append(x[i])
-            data[0]["mag"].append(y[i])
+        data[0]["phase"].append(x[i])
+        data[0]["mag"].append(y[i])
 
     f_out = open(saveFileName, 'w')
     f_out.write(json.dumps(data, sort_keys=True, indent=4))
