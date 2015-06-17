@@ -516,12 +516,12 @@ function plotPCAMultiple(data) {
 
         circleSel.append("circle")
                  .attr("stroke", "none")
-                 .attr("opacity", "0.1")
+                 .attr("opacity", "0.2")
                  .attr("fill", function(d) {
                      if (d[2] == typeList[i])
                          return getColorCode(typeList[i]);
                      else
-                         return "grey"; })
+                         return "#bdbdbd"; })
                  .attr("cx", function(d) { return xScale(d[0]); })
                  .attr("cy", function(d) { return yScale(d[1]); })
                  .attr("r", 3)
