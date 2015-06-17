@@ -490,8 +490,23 @@ function plotPCAMultiple(data) {
     var xAxis = d3.svg.axis().scale(xScale);
     var yAxis = d3.svg.axis().scale(yScale);
 
+    function sortFunction(type) {
+        var fun = function(a, b) {
+            if (a[2] == type) return 1;
+            else if (b[2] == type)
+                return -1;
+            else
+                return 0;
+        }
+        return fun;
+    }
+
     var typeList = [1,2,4,5,6];
     for (var i = 0; i < typeList.length; i ++) {
+        // sort the data so that the selected type comes last so
+        // that the selected type is always on top of other types.
+        data.sort(sortFunction(typeList[i]));
+
         svgSel = d3.select("#plotPCAMultiple")
                    .append("svg")
                    .attr("width", plotWidth)
