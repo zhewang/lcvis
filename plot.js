@@ -457,6 +457,7 @@ function plotPCAColored(data) {
     circleSel = svgSel.selectAll("circle").data(data).enter()
 
     circleSel.append("circle")
+             .classed("clickable", true)
              .attr("stroke", "none")
              .attr("opacity", "0.2")
              .attr("fill", function(d) { return getColorCode(d[2]); })
@@ -515,6 +516,7 @@ function plotPCAMultiple(data) {
         circleSel = svgSel.selectAll("circle").data(data).enter()
 
         circleSel.append("circle")
+                 .classed("clickable", true)
                  .attr("stroke", "none")
                  .attr("opacity", "0.2")
                  .attr("fill", function(d) {
