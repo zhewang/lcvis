@@ -13,7 +13,7 @@ def findPeak(mag, phase):
             magPeak = mag[i]
             phasePeak = phase[i]
 
-    if magPeak < 0.1:
+    if magPeak < 0.2:
         magPeakNeg = -100
         phasePeakNeg = -1
         for i in range(len(mag)):
