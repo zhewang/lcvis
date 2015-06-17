@@ -462,7 +462,10 @@ function plotPCAColored(data) {
              .attr("fill", function(d) { return getColorCode(d[2]); })
              .attr("cx", function(d) { return xScale(d[0]); })
              .attr("cy", function(d) { return yScale(d[1]); })
-             .attr("r", 3);
+             .attr("r", 3)
+             .on("click", function(d) {
+                 changePlot(d[3]);
+             });
 
     svgSel.append("g")
           .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
@@ -506,7 +509,10 @@ function plotPCAMultiple(data) {
                          return "grey"; })
                  .attr("cx", function(d) { return xScale(d[0]); })
                  .attr("cy", function(d) { return yScale(d[1]); })
-                 .attr("r", 3);
+                 .attr("r", 3)
+                 .on("click", function(d) {
+                    changePlot(d[3]);
+                 });
 
         svgSel.append("g")
               .attr("transform", "translate(0, "+(plotHeight-30).toString()+")")
