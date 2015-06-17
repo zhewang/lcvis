@@ -301,17 +301,37 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
     var timeExtent = d3.extent(data, function(row) { return row.time; });
     var magExtent = d3.extent(data, function(row) { return row.mag; });
     var magAverage = d3.mean(data, function(row) { return row.mag; });
-    var t;
 
-    var max_peak = 100;
-    var max_phase = -1;
-    for (var i = 0; i < curve_points.length; i ++) {
-        if (curve_points[i].y < max_peak) {
-            max_peak = curve_points[i].y;
-            max_phase = curve_points[i].x;
+    function findPeak(points) {
+        var max_peak = 100;
+        var max_phase = -1;
+        for (var i = 0; i < curve_points.length; i ++) {
+            if (curve_points[i].y < max_peak) {
+                max_peak = curve_points[i].y;
+                max_phase = curve_points[i].x;
+            }
         }
+
+        if (max_peak < 0.2 + magAverage) {
+            var max_peak_neg = -100;
+            var max_phase_neg = -1;
+            for (var i = 0; i < curve_points.length; i ++) {
+                if (curve_points[i].y > max_peak_neg) {
+                    max_peak_neg = curve_points[i].y;
+                    max_phase_neg = curve_points[i].x;
+                }
+            }
+
+            if((magAverage-max_peak_neg)/(max_peak-magAverage) > 3)
+                return max_phase_neg;
+            else
+                return max_phase;
+        }
+        else
+            return max_phase;
     }
 
+    var max_phase = findPeak(curve_points);
     var shift = max_phase - 0.3;
 
     function shiftFunction(d) {
