@@ -536,7 +536,7 @@ function plotPCAMultiple(data) {
         circleSel = svgSel.selectAll("circle").data(data).enter()
 
         circleSel.append("circle")
-                 .classed("clickable", true)
+                 .classed("clickable", function(d) {return d[2]==typeList[i];})
                  .attr("stroke", "none")
                  .attr("opacity", "0.2")
                  .attr("fill", function(d) {
