@@ -4,6 +4,7 @@ import json
 import numpy as np
 # import matplotlib.pyplot as plt
 from supersmoother import SuperSmoother
+from scipy import interpolate
 
 
 def fillNaN(x, y):
@@ -50,6 +51,8 @@ def fitCurve(fileName, period, saveFileName, errorFileName):
     y = model.predict(x).tolist()
 
     data = [{"phase": [], "mag": []}]
+
+    x, y = fillNaN(x, y)
 
     for i in range(len(y)):
         data[0]["phase"].append(x[i])
