@@ -92,3 +92,6 @@ if __name__ == '__main__':
     f_out = open(args.path+'/pca.json', 'w')
     f_out.write(json.dumps(data))
     f_out.close()
+    f_out = open(args.path+'/pca_matrix.json', 'w')
+    f_out.write(json.dumps(list(list(x) for x in results.Wt)))
+    f_out.close()
