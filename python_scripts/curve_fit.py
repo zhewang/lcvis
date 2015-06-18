@@ -48,6 +48,7 @@ def fitCurve(fileName, period, saveFileName, errorFileName):
     x = np.linspace(0, 1).tolist()
     y = model.predict(x).tolist()
 
+    x, y = fillNaN(x, y)
 
     data = [{"phase": [], "mag": []}]
 
