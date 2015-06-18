@@ -20,7 +20,7 @@ def fillNaN(x, y):
     return x, yy
 
 
-def fitCurve(fileName, period, saveFileName):
+def fitCurve(fileName, period, saveFileName, errorFileName):
     lc_file = open(fileName, 'r')
     lc_data = json.load(lc_file)
 
@@ -35,10 +35,19 @@ def fitCurve(fileName, period, saveFileName):
     model = SuperSmoother()
     model.fit(xdata, ydata)
 
+    ydataError = []
+    for i in range(len(xdata)):
+        y_predict = model.predict(xdata[i])
+        error = ydata[i] - float(y_predict)
+        ydataError.append(error)
+
+    f_out = open(errorFileName, 'w')
+    f_out.write(json.dumps(ydataError))
+    f_out.close()
+
     x = np.linspace(0, 1).tolist()
     y = model.predict(x).tolist()
 
-    x, y = fillNaN(x, y)
 
     data = [{"phase": [], "mag": []}]
 
@@ -68,4 +77,5 @@ if __name__ == '__main__':
             print("Fitting {}".format(obj_id))
             if period > 0:
                 fitCurve(args.path+'/'+str(obj_id)+'.dat.json', period,
-                         args.path+'/'+str(obj_id)+'.fit.json')
+                         args.path+'/'+str(obj_id)+'.fit.json',
+                         args.path+'/'+str(obj_id)+'.error.json')
