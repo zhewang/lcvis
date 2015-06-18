@@ -26,6 +26,7 @@ def fitCurve(fileName, period, saveFileName, errorFileName):
 
     Mag = np.array([i["mag"] for i in lc_data])
     MJD = np.array([i["time"] for i in lc_data])
+    Error = np.array([i["error"] for i in lc_data])
     t = MJD - MJD.min()
     phi = np.array([i/period - int(i/period) for i in t])
 
@@ -33,7 +34,7 @@ def fitCurve(fileName, period, saveFileName, errorFileName):
     ydata = Mag
 
     model = SuperSmoother()
-    model.fit(xdata, ydata)
+    model.fit(xdata, ydata, Error)
 
     ydataError = []
     for i in range(len(xdata)):
@@ -47,7 +48,6 @@ def fitCurve(fileName, period, saveFileName, errorFileName):
 
     x = np.linspace(0, 1).tolist()
     y = model.predict(x).tolist()
-
 
     data = [{"phase": [], "mag": []}]
 
