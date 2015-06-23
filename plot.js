@@ -17,7 +17,7 @@ function changePlot(newPlotId) {
 function simpleDot(sel) {
     sel.attr("fill", "black")
         .attr("stroke", "none")
-        .attr("r", 3)
+        .attr("r", 2.5)
         .attr("fill-opacity", 0.5);
 }
 
@@ -69,7 +69,7 @@ function plotObject(id, period) {
         }
 
         // plot mag vs. time
-        plotTimeMag(json, 500, 200);
+        plotTimeMag(json, 330, 200);
         if (period > 0) {
             var curve_data_file = path+id.toString()+".fit.json";
             var points = [];
@@ -81,10 +81,10 @@ function plotObject(id, period) {
                 }
 
                 // plot mag vs. phase
-                plotPhaseMag(json, period, points, 500, 200);
+                plotPhaseMag(json, period, points, 330, 200);
 
                 // plot scaled mag vs. phase
-                plotPhaseMagScaled(json, period, points, 500, 400);
+                plotPhaseMagScaled(json, period, points, 360, 250);
 
                 // plot the result of PCA
                 plotPCA();
@@ -93,7 +93,7 @@ function plotObject(id, period) {
     });
 
     d3.json(error_file, function(json) {
-        plotErrorHistogram(json, 500, 200);
+        plotErrorHistogram(json, 300, 250);
     });
 };
 
@@ -103,7 +103,7 @@ function createTimeMagPlot(data, width, height) {
     var plot = {};
     var plotWidth = width;
     var plotHeight = height;
-    
+
     var xScale = d3.scale.linear().range([50, plotWidth-30]);
     var yScale = d3.scale.linear().range([plotHeight-30, 30]);
     var xAxis = d3.svg.axis().scale(xScale).ticks(5);
@@ -170,7 +170,7 @@ function plotTimeMag(data, width, height) {
 function createPhaseMagPlot(data, period, curve_points, width, height) {
     var plot = {};
     var plotWidth = width;
-    var plotHeight = height;    
+    var plotHeight = height;
 
     var xScale = d3.scale.linear().domain([-0.5, 1.5]).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().range([plotHeight-30, 30]);
@@ -183,7 +183,7 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
     plot.yAxis = yAxis;
     yAxis.orient("left");
 
-    plot.setCircleProperties = function(shift) { 
+    plot.setCircleProperties = function(shift) {
         return function(sel) {
             sel.call(simpleDot)
                 .attr("cx", function(d) { return xScale(d.phase + shift); })
@@ -191,7 +191,7 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
         };
     };
 
-    plot.setLineProperties = function(shift) { 
+    plot.setLineProperties = function(shift) {
         return function(sel) {
             sel.call(simpleDot)
                 .attr("stroke", "black")
@@ -214,7 +214,7 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
           .attr("transform", "translate(0, "+(plotHeight-30).toString()+")");
     plot.yAxisGroup = svgSel.append("g")
           .attr("transform", "translate(50, 0)");
-    plot.curveSel = svgSel.append("g");    
+    plot.curveSel = svgSel.append("g");
 
     return plot;
 }
@@ -415,8 +415,8 @@ function plotPCA() {
     var xExtent = d3.extent(data, function(row) { return row[0]; });
     var yExtent = d3.extent(data, function(row) { return row[1]; });
 
-    var plotWidth = 500;
-    var plotHeight = 500;
+    var plotWidth = 600;
+    var plotHeight =600;
 
     var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth-30]);
     var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
@@ -442,20 +442,20 @@ function plotPCA() {
         "Algol-like with 2 minima",
         "Contact binary",
         "delta Scu/SX Phe",
-        "Algol-like with 1 minima", 
+        "Algol-like with 1 minima",
         "Long-period variable",
         "heartbeat candidates",
         "BL Her",
         "anomalous Cepheids",
         "other"
     ]);
-        
+
     var svgSel = d3.select("#plotPCA")
             .append("svg")
             .attr("width", plotWidth)
             .attr("height", plotHeight);
 
-    var legendSel = svgSel.append("g").attr("transform","translate(60,340)");
+    var legendSel = svgSel.append("g").attr("transform","translate(60,420)");
     var legendG = legendSel.selectAll("g")
             .data(colorScale.domain())
             .enter()
@@ -490,7 +490,7 @@ function plotPCA() {
             .attr("fill-opacity", 0.1);
         s.filter(function(d) { return d[2] === type; })
             .attr("fill-opacity", 0.5);
-        s.sort(function(a, b) { 
+        s.sort(function(a, b) {
             if (a[2] !== type) { a = -1; } else { a = 1; }
             if (b[2] !== type) { b = -1; } else { b = 1; }
             return d3.ascending(a, b);
@@ -508,7 +508,7 @@ function plotPCA() {
           .attr("transform", "translate(50, 0)")
           .call(yAxis);
 
-
+    // plot matrix weight
     var axesSel = svgSel.append("g");
     var axesLegend = svgSel.append("g");
     d3.json(path+"pca_matrix.json", function(m) {
@@ -529,16 +529,16 @@ function plotPCA() {
             .data(xs)
             .enter()
             .append("line")
-            .attr("x1",400)
-            .attr("y1",400)
-            .attr("x2",function(d,i) { return 400 + 20 * Math.cos(i / 50 * Math.PI * 2); })
-            .attr("y2",function(d,i) { return 400 + 20 * Math.sin(i / 50 * Math.PI * 2); })
+            .attr("x1",500)
+            .attr("y1",500)
+            .attr("x2",function(d,i) { return 500 + 20 * Math.cos(i / 50 * Math.PI * 2); })
+            .attr("y2",function(d,i) { return 500 + 20 * Math.sin(i / 50 * Math.PI * 2); })
             .attr("stroke", function(d, i) {
                 return d3.hcl(i / 50 * 360, 50, 70);
             })
             .attr("stroke-width", 3);
 
-        
+
     });
 
     });
