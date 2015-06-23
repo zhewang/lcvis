@@ -51,8 +51,17 @@ d3.csv(path + "object_list.csv", function(csv) {
                   return d.id+" *";
           });
 
-    // plot the first object when starting
-    plotObject(csv[0].id, csv[0].period);
+    // load attributes
+    d3.json(path+"PLV_LINEAR.json", function(data) {
+        for (var i=0; i < data.data.length; ++i) {
+            var id = data.data[i].LINEARobjectID;
+            objs[id]["LinearAttrs"] = data.data[i];
+        }
+
+        // plot the first object when starting
+        plotObject(csv[0].id, csv[0].period);
+    });
+
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -60,6 +69,7 @@ d3.csv(path + "object_list.csv", function(csv) {
 function plotObject(id, period) {
     var data_file = path + id.toString()+".dat.json";
     var error_file = path + id.toString()+".error.json";
+
     d3.json(data_file, function(json) {
         // Load Data
         for (var i=0; i<json.length; ++i) {
@@ -95,7 +105,42 @@ function plotObject(id, period) {
     d3.json(error_file, function(json) {
         plotErrorHistogram(json, 300, 250);
     });
+
+    plotLinearAttribute(id);
 };
+
+//////////////////////////////////////////////////////////////////////////////
+function createLinearAttribute(id) {
+    var plot = {};
+
+    var data = objs[id].LinearAttrs;
+    var keys = Object.keys(data);
+
+    var table = d3.select('#plotLinearAttribute').append('table');
+
+    var tr = table.selectAll("tr")
+                     .data(keys)
+                     .enter()
+                     .append("tr");
+
+    var td_header = tr.append("td")
+                      .html(function(d) {return d})
+
+    var td_content = tr.append("td")
+                       .html(function(d) {return data[d];})
+
+    plot.table = table;
+    plot.tr = tr;
+
+    return plot;
+}
+
+function plotLinearAttribute(id) {
+    if (!plots.linearattribute) {
+        plots.linearattribute = createLinearAttribute(id);
+    }
+    var plot = plots.linearattribute;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -455,6 +500,8 @@ function plotPCA() {
             .attr("width", plotWidth)
             .attr("height", plotHeight);
 
+
+    // LCType legend
     var legendSel = svgSel.append("g").attr("transform","translate(60,420)");
     var legendG = legendSel.selectAll("g")
             .data(colorScale.domain())
@@ -462,10 +509,19 @@ function plotPCA() {
             .append("g")
             .classed("clickable", true);
 
-    legendG.append("rect").attr("width",10).attr("height",10).attr("fill", function(d) { return colorScale(d); }).attr("y", function(d, i) { return i * 11; });
-        legendG.append("text").text(function(d) { return namesScale(d); }).attr("x", 12).attr("y", function(d, i) { return i * 11 + 10; }).classed("legend", true);
+    legendG.append("rect")
+           .attr("width",10)
+           .attr("height",10)
+           .attr("fill", function(d) { return colorScale(d); })
+           .attr("y", function(d, i) { return i * 11; });
+
+    legendG.append("text")
+           .text(function(d) { return namesScale(d); })
+           .attr("x", 12)
+           .attr("y", function(d, i) { return i * 11 + 10; }).classed("legend", true);
 
     var circleSel = svgSel.selectAll("circle").data(data).enter();
+
     function setDotColors(sel) {
         sel.attr("fill", function(d) { return colorScale(d[2]); })
             .attr("fill-opacity", 0.3)
@@ -481,6 +537,7 @@ function plotPCA() {
             .on("mouseover", function(d) {
                 changePlot(d[3]);
             });
+
     var allCircles = svgSel.selectAll("circle");
 
     legendG.on("mouseover", function(type) {
