@@ -114,32 +114,35 @@ function createLinearAttribute(id) {
     var plot = {};
 
     var data = objs[id].LinearAttrs;
+    delete data.LINEARobjectID;
     var keys = Object.keys(data);
 
     var table = d3.select('#plotLinearAttribute').append('table');
 
-    var tr = table.selectAll("tr")
-                     .data(keys)
-                     .enter()
-                     .append("tr");
+    var t_header = table.append("tr")
+                      .selectAll("td")
+                      .data(keys)
+                      .enter()
+                      .append("td")
+                      .html(function(d) {return d;})
 
-    var td_header = tr.append("td")
-                      .html(function(d) {return d})
-
-    var td_content = tr.append("td")
-                       .html(function(d) {return data[d];})
+    var t_content = table.append("tr")
+                      .selectAll("td")
+                      .data(keys)
+                      .enter()
+                      .append("td")
+                      .html(function(d) {return data[d];})
 
     plot.table = table;
-    plot.tr = tr;
+    plot.t_header = t_header;
+    plot.t_content = t_content;
 
     return plot;
 }
 
 function plotLinearAttribute(id) {
-    if (!plots.linearattribute) {
-        plots.linearattribute = createLinearAttribute(id);
-    }
-    var plot = plots.linearattribute;
+    d3.select("#plotLinearAttribute").select("table").remove();
+    createLinearAttribute(id);
 }
 
 //////////////////////////////////////////////////////////////////////////////
