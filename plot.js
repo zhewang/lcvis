@@ -2,7 +2,8 @@ var objs = {};
 
 var plots = {};
 
-var path = "data/data_new/";
+//var path = "data/data_new/";
+var path = "data_raw/"
 
 function changePlot(newPlotId) {
     var period = objs[newPlotId].period;
