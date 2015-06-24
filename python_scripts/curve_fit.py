@@ -6,6 +6,18 @@ import numpy as np
 from supersmoother import SuperSmoother
 from scipy import interpolate
 
+def fillNaN(x, y):
+    length = len(x)
+    yy = []
+    for i in range(length):
+        if y[i] != y[i]:
+            for j in range(length):
+                if y[j % length] == y[j % length]:
+                    yy.append(y[j])
+                    break
+        else:
+            yy.append(y[i])
+    return x, yy
 
 def fitCurve(fileName, period, saveFileName):
     lc_file = open(fileName, 'r')
