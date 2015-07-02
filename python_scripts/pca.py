@@ -16,6 +16,8 @@ if __name__ == '__main__':
     metadata = dict((obj["LINEARobjectID"], obj) for obj in j["data"])
     obj_ids = []
 
+    row_length = 50
+
     with open('{}/object_list.csv'.format(args.path)) as csvfile:
         objects = csv.reader(csvfile)
         next(objects, None)
@@ -24,13 +26,13 @@ if __name__ == '__main__':
             period = float(row[1])
             if period > 0:
                 v = loadMagData(args.path+'/'+str(obj_id)+'.fit.json')
-                for i in range(50 - len(v)):
+                for i in range(row_length - len(v)):
                     v.append(v[0])
                 matrix.append(v)
                 obj_ids.append(obj_id)
 
     vec = np.array(matrix)
-    vec.shape = (len(matrix), 50)
+    vec.shape = (len(matrix), row_length)
     results = PCA(vec)
 
     data = []
