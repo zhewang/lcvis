@@ -2,8 +2,8 @@ var objs = {};
 
 var plots = {};
 
-//var path = "data/data_new/";
-var path = "data_raw/"
+var path = "data/data_new/";
+// var path = "data_10/";
 
 function changePlot(newPlotId) {
     var period = objs[newPlotId].period;
@@ -570,37 +570,35 @@ function plotPCA() {
           .call(yAxis);
 
     // plot matrix weight
-    var axesSel = svgSel.append("g");
-    var axesLegend = svgSel.append("g");
-    d3.json(path+"pca_matrix.json", function(m) {
-        var xs = m[0], ys = m[1];
-        axesSel.selectAll("line")
-            .data(xs)
-            .enter()
-            .append("line")
-            .attr("x1",xScale(0))
-            .attr("y1",yScale(0))
-            .attr("x2",function(d,i) { return xScale(m[0][i] * 20); })
-            .attr("y2",function(d,i) { return yScale(m[1][i] * 20); })
-            .attr("stroke", function(d, i) {
-                return d3.hcl(i / 50 * 360, 50, 50);
-            });
-
-        axesLegend.selectAll("line")
-            .data(xs)
-            .enter()
-            .append("line")
-            .attr("x1",500)
-            .attr("y1",500)
-            .attr("x2",function(d,i) { return 500 + 20 * Math.cos(i / 50 * Math.PI * 2); })
-            .attr("y2",function(d,i) { return 500 + 20 * Math.sin(i / 50 * Math.PI * 2); })
-            .attr("stroke", function(d, i) {
-                return d3.hcl(i / 50 * 360, 50, 70);
-            })
-            .attr("stroke-width", 3);
-
-
-    });
+    // var axesSel = svgSel.append("g");
+    // var axesLegend = svgSel.append("g");
+    // d3.json(path+"pca_matrix.json", function(m) {
+    //     var xs = m[0], ys = m[1];
+    //     axesSel.selectAll("line")
+    //         .data(xs)
+    //         .enter()
+    //         .append("line")
+    //         .attr("x1",xScale(0))
+    //         .attr("y1",yScale(0))
+    //         .attr("x2",function(d,i) { return xScale(m[0][i] * 20); })
+    //         .attr("y2",function(d,i) { return yScale(m[1][i] * 20); })
+    //         .attr("stroke", function(d, i) {
+    //             return d3.hcl(i / 50 * 360, 50, 50);
+    //         });
+    //
+    //     axesLegend.selectAll("line")
+    //         .data(xs)
+    //         .enter()
+    //         .append("line")
+    //         .attr("x1",500)
+    //         .attr("y1",500)
+    //         .attr("x2",function(d,i) { return 500 + 20 * Math.cos(i / 50 * Math.PI * 2); })
+    //         .attr("y2",function(d,i) { return 500 + 20 * Math.sin(i / 50 * Math.PI * 2); })
+    //         .attr("stroke", function(d, i) {
+    //             return d3.hcl(i / 50 * 360, 50, 70);
+    //         })
+    //         .attr("stroke-width", 3);
+    // });
 
     });
 }
