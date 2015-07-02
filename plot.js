@@ -7,8 +7,6 @@ var path = "data/data_new/";
 
 function changePlot(newPlotId) {
     var period = objs[newPlotId].period;
-    // clear previous plot
-    d3.select("#plot").selectAll("svg").remove();
 
     // plot current selection
     plotObject(newPlotId, period);
@@ -99,12 +97,18 @@ function plotObject(id, period) {
 
                 // plot the result of PCA
                 plotPCA();
+
+                d3.json(error_file, function(json) {
+                    plotErrorHistogram(json, 300, 250);
+                });
             });
         }
-    });
-
-    d3.json(error_file, function(json) {
-        plotErrorHistogram(json, 300, 250);
+        else {
+            // clear previous plot
+            d3.select("#right").selectAll("svg").remove();
+            plots = {}
+            plotTimeMag(json, 330, 200);
+        }
     });
 
     plotLinearAttribute(id);
