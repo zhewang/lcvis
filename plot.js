@@ -504,8 +504,6 @@ function plotPCA() {
             .attr("width", plotWidth)
             .attr("height", plotHeight);
 
-
-    // LCType legend
     var legendSel = svgSel.append("g").attr("transform","translate(60,420)");
     var legendG = legendSel.selectAll("g")
             .data(colorScale.domain())
@@ -529,7 +527,11 @@ function plotPCA() {
     function setDotColors(sel) {
         sel.attr("fill", function(d) { return colorScale(d[2]); })
             .attr("fill-opacity", 0.3)
-            .attr("stroke", "none");
+            .attr("stroke", "none")
+            .classed("clickable", true)
+            .on("mouseover", function(d) {
+                changePlot(d[3]);
+            })
     }
 
     circleSel.append("circle")
@@ -544,20 +546,31 @@ function plotPCA() {
 
     var allCircles = svgSel.selectAll("circle");
 
-    legendG.on("mouseover", function(type) {
+    // reset dot color when click on blank area
+    svgSel.on("click", function() {
+        allCircles.call(setDotColors);
+      })
+
+    legendG.on("click", function(type) {
+        d3.event.stopPropagation();
         var s = allCircles;
         s.filter(function(d) { return d[2] !== type; })
             .attr("fill", "gray")
-            .attr("fill-opacity", 0.1);
+            .attr("fill-opacity", 0.1)
+            .classed("clickable", false)
+            .on("mouseover", function(d) { });
         s.filter(function(d) { return d[2] === type; })
-            .attr("fill-opacity", 0.5);
+            .attr("fill", colorScale(type))
+            .attr("fill-opacity", 0.5)
+            .classed("clickable", true)
+            .on("mouseover", function(d) {
+                changePlot(d[3]);
+            });
         s.sort(function(a, b) {
             if (a[2] !== type) { a = -1; } else { a = 1; }
             if (b[2] !== type) { b = -1; } else { b = 1; }
             return d3.ascending(a, b);
         });
-    }).on("mouseout", function(type) {
-        allCircles.call(setDotColors);
     });
 
     svgSel.append("g")
