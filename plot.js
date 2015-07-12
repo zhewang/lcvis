@@ -63,8 +63,16 @@ d3.csv(path + "object_list.csv", function(csv) {
             objs[id]["LinearAttrs"] = data.data[i];
         }
 
-        // plot the first object when starting
-        plotObject(csv[0].id, csv[0].period);
+        d3.json(path+"PLV_SDSS.json", function(data) {
+            for (var i=0; i < data.data.length; ++i) {
+                var id = data.data[i].LINEARobjectID;
+                objs[id]["SDSS"] = data.data[i];
+            }
+
+            // plot the first object when starting
+            plotObject(csv[0].id, csv[0].period);
+        });
+
     });
 
 });
@@ -571,8 +579,10 @@ function plotPCA() {
         changePlot(d[3]);
 
         //show other information associated with this dot
-        d3.select("#obj_img")
-          .attr('src', 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=197.614455642896&dec=18.438168853724&scale=0.4&width=512&height=512&opt=L&query=&Label=on');
+        sdss = (objs[d[3]].SDSS);
+        var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra='+sdss.RA+'&dec='+sdss.Dec+'&scale=0.4&width=512&height=512&opt=L&query=&Label=on';
+        d3.select("#obj_img").append("img")
+          .attr('src', imgsrc);
     }
 
     function unhighlightDot(sel) {
@@ -581,6 +591,8 @@ function plotPCA() {
           .attr('stroke', 'none')
           .classed('pinned', false);
         pinnedDotSel = null;
+
+        d3.select("#obj_img").select("img").remove();
     }
 
     circleSel.append("circle")
