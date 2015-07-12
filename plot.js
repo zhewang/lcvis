@@ -20,6 +20,12 @@ function simpleDot(sel) {
         .attr("fill-opacity", 0.5);
 }
 
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
 d3.csv(path + "object_list.csv", function(csv) {
     for (var i=0; i<csv.length; ++i) {
         csv[i].id= Number(csv[i].id);
@@ -528,14 +534,53 @@ function plotPCA() {
 
     var circleSel = svgSel.selectAll("circle").data(data).enter();
 
+    var pinnedDotSel = null;
+
     function setDotColors(sel) {
         sel.attr("fill", function(d) { return colorScale(d[2]); })
             .attr("fill-opacity", 0.3)
             .attr("stroke", "none")
             .classed("clickable", true)
             .on("mouseover", function(d) {
-                changePlot(d[3]);
+                if(pinnedDotSel === null)
+                    changePlot(d[3]);
             })
+            .on('click', highlightDot);
+    }
+
+    function highlightDot(d) {
+        d3.event.stopPropagation();
+
+        if(d3.select(this).classed('pinned')) {
+            unhighlightDot(pinnedDotSel);
+            return;
+        }
+
+        if(pinnedDotSel !== null) {
+            unhighlightDot(pinnedDotSel);
+        }
+
+        pinnedDotSel = d3.select(this);
+
+        pinnedDotSel.attr("fill-opacity", 1)
+          .attr('r', 6)
+          .attr('stroke', 'black')
+          .classed('pinned', true)
+          .moveToFront();
+
+        changePlot(d[3]);
+
+        //show other information associated with this dot
+        d3.select("#obj_img")
+          .attr('src', 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=197.614455642896&dec=18.438168853724&scale=0.4&width=512&height=512&opt=L&query=&Label=on');
+    }
+
+    function unhighlightDot(sel) {
+        sel.attr("fill-opacity", 0.3)
+          .attr('r', 3)
+          .attr('stroke', 'none')
+          .classed('pinned', false);
+        pinnedDotSel = null;
     }
 
     circleSel.append("circle")
@@ -543,32 +588,38 @@ function plotPCA() {
             .call(setDotColors)
             .attr("cx", function(d) { return xScale(d[0]); })
             .attr("cy", function(d) { return yScale(d[1]); })
-            .attr("r", 3)
-            .on("mouseover", function(d) {
-                changePlot(d[3]);
-            });
+            .attr("r", 3);
 
     var allCircles = svgSel.selectAll("circle");
 
     // reset dot color when click on blank area
     svgSel.on("click", function() {
         allCircles.call(setDotColors);
+
+        if(pinnedDotSel !== null)
+            unhighlightDot(pinnedDotSel);
       })
 
     legendG.on("click", function(type) {
         d3.event.stopPropagation();
+
+        if(pinnedDotSel !== null)
+            unhighlightDot(pinnedDotSel);
+
         var s = allCircles;
         s.filter(function(d) { return d[2] !== type; })
             .attr("fill", "gray")
             .attr("fill-opacity", 0.1)
             .classed("clickable", false)
+            .on('click', function() {d3.event.stopPropagation();})
             .on("mouseover", function(d) { });
         s.filter(function(d) { return d[2] === type; })
             .attr("fill", colorScale(type))
             .attr("fill-opacity", 0.5)
             .classed("clickable", true)
             .on("mouseover", function(d) {
-                changePlot(d[3]);
+                if(pinnedDotSel === null)
+                    changePlot(d[3]);
             });
         s.sort(function(a, b) {
             if (a[2] !== type) { a = -1; } else { a = 1; }
