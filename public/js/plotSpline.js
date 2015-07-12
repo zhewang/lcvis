@@ -1,4 +1,4 @@
-var path = "./";
+var path = "data/";
 
 function plotSpline(data, width, height) {
     var timeExtent = d3.extent(data[0].phase);

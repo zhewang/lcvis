@@ -2,7 +2,7 @@ var objs = {};
 
 var plots = {};
 
-var path = "data/data_new/";
+var path = "data/";
 // var path = "data_10/";
 
 function changePlot(newPlotId) {
