@@ -3,3 +3,4 @@ data_*
 *.json
 *.txt
 .ropeproject
+node_modules/
