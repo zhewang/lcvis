@@ -690,9 +690,12 @@ function plotPCA(data) {
 ///////////////////////////////////////////////////
 var userObjCount = 0;
 function plotUserObject() {
+    var userData = {"name": "test"};
     $.ajax({
+    url: "/plotusers",
+    type: "POST",
     dataType: "json",
-    url: "/plotnew",
+    data: userData,
     success: function (d) {
         userObjCount += 1;
         pca_data.push([d.x, d.y, -1, -1]);
