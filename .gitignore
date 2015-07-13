@@ -4,3 +4,5 @@ data_*
 *.txt
 .ropeproject
 node_modules/
+
+!package.json

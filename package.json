@@ -1,0 +1,24 @@
+{
+  "name": "lcvis",
+  "version": "1.0.0",
+  "description": "light curve visualization tool",
+  "main": "main.js",
+  "dependencies": {
+    "body-parser": "^1.13.2",
+    "express": "^4.13.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhewang/lcvis.git"
+  },
+  "author": "",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/zhewang/lcvis/issues"
+  },
+  "homepage": "https://github.com/zhewang/lcvis#readme"
+}
