@@ -492,7 +492,7 @@ function plotPCA(data) {
     var yScale = d3.scale.linear().domain(yExtent).range([plotHeight-30, 30]);
     var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
-    var colorScale = d3.scale.ordinal().domain([1,2,4,5,6,3,7,8,9,11,0]).range([
+    var colorScale = d3.scale.ordinal().domain([1,2,4,5,6,3,7,8,9,11,0,-1]).range([
        "#e41a1c",
        "#377eb8",
        "#4daf4a",
@@ -503,7 +503,8 @@ function plotPCA(data) {
        "#00ffff",
        "#00ffff",
        "#00ffff",
-       "#00ffff"
+       "#00ffff",
+       "black"
     ]);
 
     var namesScale = d3.scale.ordinal().domain([1,2,4,5,6,3,7,8,9,11,0]).range([
@@ -517,7 +518,8 @@ function plotPCA(data) {
         "heartbeat candidates",
         "BL Her",
         "anomalous Cepheids",
-        "other"
+        "other",
+        "User Added Object"
     ]);
 
     d3.select("#plotPCA").select('svg').remove();
@@ -552,6 +554,9 @@ function plotPCA(data) {
         sel.attr("fill", function(d) { return colorScale(d[2]); })
             .attr("fill-opacity", 0.3)
             .attr("stroke", "none")
+            .attr("cx", function(d) { return xScale(d[0]); })
+            .attr("cy", function(d) { return yScale(d[1]); })
+            .attr("r", function(d) { return d[2]<0?6:3; })
             .classed("clickable", true)
             .on("mouseover", function(d) {
                 if(pinnedDotSel === null)
@@ -591,7 +596,7 @@ function plotPCA(data) {
 
     function unhighlightDot(sel) {
         sel.attr("fill-opacity", 0.3)
-          .attr('r', 3)
+          .attr("r", function(d) { return d[2]<0?6:3; })
           .attr('stroke', 'none')
           .classed('pinned', false);
         pinnedDotSel = null;
@@ -601,10 +606,7 @@ function plotPCA(data) {
 
     circleSel.append("circle")
             .classed("clickable", true)
-            .call(setDotColors)
-            .attr("cx", function(d) { return xScale(d[0]); })
-            .attr("cy", function(d) { return yScale(d[1]); })
-            .attr("r", 3);
+            .call(setDotColors);
 
     var allCircles = svgSel.selectAll("circle");
 
@@ -686,12 +688,23 @@ function plotPCA(data) {
 }
 
 ///////////////////////////////////////////////////
-function plotNewObject() {
+var userObjCount = 0;
+function plotUserObject() {
     $.ajax({
     dataType: "json",
     url: "/plotnew",
     success: function (d) {
+        userObjCount += 1;
         pca_data.push([d.x, d.y, -1, -1]);
         plotPCA(pca_data);
     }});
+}
+
+function clearUserObject() {
+    while(userObjCount > 0) {
+        pca_data.pop();
+        userObjCount -= 1;
+    }
+
+    plotPCA(pca_data);
 }
