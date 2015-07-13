@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8"/>
         <script src="js/d3.v3.js"></script>
+        <script src="js/jquery.js"></script>
         <script src="js/plot.js"></script>
         <script src="js/errorPlot.js"></script>
         <style>
@@ -46,8 +47,9 @@
         </style>
     </head>
     <body>
-        <div id="left" style="float:left" width="500px">
+        <div id="left" style="float:left" width="500px" height="700px">
             <div id="plotPCA" style="float:left"></div>
+            <div style="float:left; margin-left: -500px"><button onclick='plotNewObject()'>Plot New</button></div>
         </div>
         <div id="right"  width="500px">
             <div id="selection"></div>

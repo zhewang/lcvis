@@ -1,11 +1,17 @@
 var objs = {};
-
+var pca_data;
 var plots = {};
 
 var path = "data/";
 // var path = "data_10/";
 
 function changePlot(newPlotId) {
+    if(newPlotId < 0) {
+        console.log('unknown object');
+        //TODO only show time vs mag plot
+        return;
+    }
+
     var period = objs[newPlotId].period;
 
     // plot current selection
@@ -71,10 +77,16 @@ d3.csv(path + "object_list.csv", function(csv) {
 
             // plot the first object when starting
             plotObject(csv[0].id, csv[0].period);
+
         });
 
     });
 
+    // plot the result of PCA
+    d3.json(path + "/pca.json", function(data) {
+        pca_data = data;
+        plotPCA(data);
+    });
 });
 
 //////////////////////////////////////////////////////////////////////////////
@@ -108,9 +120,6 @@ function plotObject(id, period) {
 
                 // plot scaled mag vs. phase
                 plotPhaseMagScaled(json, period, points, 360, 250);
-
-                // plot the result of PCA
-                plotPCA();
 
                 d3.json(error_file, function(json) {
                     plotErrorHistogram(json, 300, 250);
@@ -472,13 +481,7 @@ function plotPhaseMagScaled(data, period, curve_points, width, height) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-var createdPCA = false;
-function plotPCA() {
-    if (createdPCA)
-        return;
-    createdPCA = true;
-    d3.json(path + "/pca.json", function(data) {
-
+function plotPCA(data) {
     var xExtent = d3.extent(data, function(row) { return row[0]; });
     var yExtent = d3.extent(data, function(row) { return row[1]; });
 
@@ -517,6 +520,7 @@ function plotPCA() {
         "other"
     ]);
 
+    d3.select("#plotPCA").select('svg').remove();
     var svgSel = d3.select("#plotPCA")
             .append("svg")
             .attr("width", plotWidth)
@@ -679,6 +683,15 @@ function plotPCA() {
     //         })
     //         .attr("stroke-width", 3);
     // });
+}
 
-    });
+///////////////////////////////////////////////////
+function plotNewObject() {
+    $.ajax({
+    dataType: "json",
+    url: "/plotnew",
+    success: function (d) {
+        pca_data.push([d.x, d.y, -1, -1]);
+        plotPCA(pca_data);
+    }});
 }

@@ -7,5 +7,9 @@ app.get('/', function (req, res) {
     res.sendfile('index.html');
 });
 
+app.get('/plotnew', function (req, res) {
+    var msg = {'x':10, 'y':-20};
+    res.send(msg);
+});
 
-app.listen(5000);
+app.listen(8000);
