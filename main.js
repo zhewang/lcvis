@@ -15,13 +15,20 @@ app.get('/', function(req, res) {
 });
 
 app.post('/plotusers', function(req, res) {
-  console.log(req.body);
+  var lcdata = JSON.stringify(req.body.lc).replace(/\"/g, '\\\"'); var period = 10;
+  var period = req.body.p;
 
   var p = process.spawn(
-    'python3', ['/Users/zhe/Projects/lcvis/python_scripts/process_object.py']
+    'python3',
+    [
+        '/Users/zhe/Projects/lcvis/python_scripts/process_object.py',
+        '\"'+lcdata+'\"',
+        period
+    ]
   );
 
   p.stdout.on('data', function(data) {
+    console.log(JSON.parse(data));
     res.send(data);
   });
 });
