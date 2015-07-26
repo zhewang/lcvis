@@ -1,8 +1,9 @@
 var path = "data/";
 
-function plotSpline(data, width, height) {
+function plotSpline(id, data, width, height) {
     var timeExtent = d3.extent(data[0].phase);
-    var magExtent = d3.extent(data[0].splinedata);
+    //var magExtent = d3.extent(data[0].splinedata);
+    var magExtent = d3.extent(data[0].spldata_sampled);
 
     var plotWidth = width;
     var plotHeight = height;
@@ -10,10 +11,10 @@ function plotSpline(data, width, height) {
     console.log(timeExtent);
     console.log(magExtent);
 
-    var xScale = d3.scale.linear().domain([-15, 40]).range([50, plotWidth-30]);
-    var yScale = d3.scale.linear().domain([5, -0.5]).range([plotHeight-30, 30]);
+    var xScale = d3.scale.linear().domain(timeExtent).range([50, plotWidth-30]);
+    var yScale = d3.scale.linear().domain([magExtent[1], magExtent[0]]).range([plotHeight-30, 30]);
 
-    var svgSel = d3.select("#plotSpline")
+    var svgSel = d3.select(id)
                .append("svg")
                .attr("width", plotWidth)
                .attr("height", plotHeight);
@@ -38,9 +39,10 @@ function plotSpline(data, width, height) {
           .enter()
           .append("path")
           .attr('d', function(d) { return lineFunction(d.points);})
-          .attr('stroke', 'blue')
+          .attr('stroke', 'black')
           .attr('stroke-width', 2)
           .attr('fill', 'none')
+          .attr('opacity', 0.2)
           .on('mouseover', function(d){
               var element = document.getElementById("objectID");
               element.innerHTML = "ID: "+d.id;
@@ -49,6 +51,15 @@ function plotSpline(data, width, height) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-d3.json(path + "clean_splinedata.json", function(data) {
-    plotSpline(data, 400, 600);
+d3.json(path + "SplinedataV.txt", function(data) {
+    plotSpline("#bandV",data, 600, 200);
+});
+d3.json(path + "SplinedataR.txt", function(data) {
+    plotSpline("#bandR",data, 600, 200);
+});
+d3.json(path + "SplinedataU.txt", function(data) {
+    plotSpline("#bandU",data, 600, 200);
+});
+d3.json(path + "SplinedataB.txt", function(data) {
+    plotSpline("#bandB",data, 600, 200);
 });
