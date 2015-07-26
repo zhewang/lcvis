@@ -126,10 +126,10 @@ function plotObject(id, period) {
         plotPhaseMag(json, period, points, 330, 200);
 
         // plot scaled mag vs. phase
-        plotPhaseMagScaled(json, period, points, 360, 250);
+        //plotPhaseMagScaled(json, period, points, 360, 250);
 
         d3.json(error_file, function(json) {
-          plotErrorHistogram(json, 300, 250);
+          plotErrorHistogram(json, 300, 300);
         });
       });
     } else {
@@ -674,7 +674,7 @@ function plotPCA(data) {
 
     //show other information associated with this dot
     sdss = (objs[d[3]].SDSS);
-    var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + sdss.RA + '&dec=' + sdss.Dec + '&scale=0.4&width=512&height=512&opt=L&query=&Label=on';
+    var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + sdss.RA + '&dec=' + sdss.Dec + '&scale=0.4&width=280&height=280&opt=L&query=&Label=on';
     d3.select("#obj_img").append("img")
       .attr('src', imgsrc);
   }
