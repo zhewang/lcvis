@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <script src="js/d3.v3.js"></script>
+        <script src="js/plotTransient.js"></script>
+        <style>
+	  html, body {
+	  font-family: "Helvetica Neue", Arial;
+	  font-weight: 300;
+	  }
+        .important {
+            font-size: 300%;
+        }
+      .tick > line {
+          fill: none;
+          stroke: black;
+      }
+      .tick > text {
+        fill: black;
+      }
+      path.domain {
+          fill: none;
+          stroke-width: 2px;
+          stroke: black;
+	}
+	.legend {
+	font-family: "Helvetica Neue", Arial;
+	font-weight: 300;
+	font-size: 10pt;
+	}
+      .my-chart {
+          fill: #bbb;
+          background-color: #fee;
+	}
+	.clickable {
+	  cursor: pointer;
+	}
+        </style>
+    </head>
+    <body>
+        <div id="plotPCA" style="float:left"></div>
+        <div id="plotLightCurve" style="float:left"></div>
+    </body>
+</html>
