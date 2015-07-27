@@ -49,8 +49,9 @@
     <body>
         <div id="left" style="float:left" width="500px" height="700px">
             <div id="plotPCA" style="float:left"></div>
-            <div style="float:left; margin-left: -500px"><button onclick='plotUserObject()'>Upload User Object</button></div>
-            <div style="float:left; margin-left: -300px"><button onclick='clearUserObject()'>Clear User Object</button></div>
+            <div><input type="file" id="fileInput"></div>
+            <div style="float:left; "><button onclick='plotUserObject()'>Plot Uploaded Object</button></div>
+            <div style="float:left; "><button onclick='clearUserObject()'>Clear User Object</button></div>
         </div>
         <div id="right"  width="500px">
             <div id="selection"></div>
