@@ -1,7 +1,7 @@
 var path = "data/";
 
 function plotSpline(id, data, width, height) {
-    var timeExtent = d3.extent(data[0].phase);
+    var timeExtent = d3.extent(data[0].mjddata_sampled);
     //var magExtent = d3.extent(data[0].splinedata);
     var magExtent = d3.extent(data[0].spldata_sampled);
 

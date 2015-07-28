@@ -8,6 +8,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/supernova')
+def supernova():
+    return render_template('supernova.html')
+
 @app.route('/plotusers', methods=['post'])
 def plotusers():
     data = request.get_json()
