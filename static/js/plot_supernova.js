@@ -235,7 +235,7 @@ function plotPCA(data) {
         .classed('pinned', true)
         .moveToFront();
 
-        changePlot(d[3]);
+        plotObject(d[3]);
 
         //show other information associated with this dot
         //sdss = (objs[d[3]].SDSS);
