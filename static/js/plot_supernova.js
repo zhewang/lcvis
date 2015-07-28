@@ -147,8 +147,8 @@ function plotPCA(data) {
     var xAxis = d3.svg.axis().scale(xScale).ticks(5);
     var yAxis = d3.svg.axis().scale(yScale).ticks(5);
     var colorScale = d3.scale.ordinal().domain([1, 2]).range([
-        "#e41a1c",
-        "#377eb8"
+        "#91bfdb",
+        "#fc8d59"
     ]);
 
     var namesScale = d3.scale.ordinal().domain([1, 2]).range([
@@ -196,7 +196,7 @@ function plotPCA(data) {
         sel.attr("fill", function(d) {
             return colorScale(d[2]);
         })
-        .attr("fill-opacity", 0.3)
+        .attr("fill-opacity", 0.8)
         .attr("stroke", "none")
         .attr("cx", function(d) {
             return xScale(d[0]);
@@ -245,7 +245,7 @@ function plotPCA(data) {
     }
 
     function unhighlightDot(sel) {
-        sel.attr("fill-opacity", 0.3)
+        sel.attr("fill-opacity", 0.8)
         .attr("r", function(d) {
             return d[2] < 0 ? 6 : 3;
         })
@@ -281,7 +281,7 @@ function plotPCA(data) {
             return d[2] !== type;
         })
         .attr("fill", "gray")
-        .attr("fill-opacity", 0.1)
+        .attr("fill-opacity", 0.2)
         .classed("clickable", false)
         .on('click', function() {
             d3.event.stopPropagation();
@@ -291,7 +291,7 @@ function plotPCA(data) {
             return d[2] === type;
         })
         .attr("fill", colorScale(type))
-        .attr("fill-opacity", 0.5)
+        .attr("fill-opacity", 0.8)
         .classed("clickable", true)
         .on("mouseover", function(d) {
             if (pinnedDotSel === null)
