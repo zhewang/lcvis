@@ -10,7 +10,7 @@ def fillNaN(x, y):
     length = len(x)
     yy = []
     for i in range(length):
-        if y[i] != y[i]:
+        if 0*y[i] != 0*y[i]:
             for j in range(length):
                 if y[j % length] == y[j % length]:
                     yy.append(y[j])
@@ -44,16 +44,20 @@ def fitcurve(lc_data, period):
             data[0]["phase"].append(x[i])
             data[0]["mag"].append(y[i])
 
-    return data
+    residual = model.predict(xdata) - ydata
 
-def feature_derive(fileName, period, saveFileName):
+    return data, residual
+
+def feature_derive(fileName, period, f_fit, f_residual):
     lc_file = open(fileName, 'r')
     lc_data = json.load(lc_file)
 
-    data = fitcurve(lc_data, period)
+    fit_data, residual = fitcurve(lc_data, period)
 
-    f_out = open(saveFileName, 'w')
-    f_out.write(json.dumps(data, sort_keys=True, indent=4))
+    f_out = open(f_fit, 'w')
+    f_out.write(json.dumps(fit_data, sort_keys=True, indent=4))
+    f_out = open(f_residual, 'w')
+    f_out.write(json.dumps(residual.tolist()))
     f_out.close()
 
 if __name__ == '__main__':
@@ -70,4 +74,5 @@ if __name__ == '__main__':
             print("Fitting {}".format(obj_id))
             if period > 0:
                 feature_derive(args.path+'/'+str(obj_id)+'.dat.json', period,
-                               args.path+'/'+str(obj_id)+'.fit.json')
+                               args.path+'/'+str(obj_id)+'.fit.json',
+                               args.path+'/'+str(obj_id)+'.error.json')
