@@ -824,7 +824,6 @@ function handleFileSelect(evt) {
     // Closure to capture the file information.
     reader.onload = function(e) {
         uploadedData = reader.result;
-        console.log(uploadedData);
     };
 
     // Read in the image file as a data URL.

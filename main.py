@@ -18,4 +18,4 @@ def plotusers():
     position = po.project(data['lc'], data['p'])
     return jsonify(position)
 
-app.run(debug=True)
+app.run(port=8080, debug=True)

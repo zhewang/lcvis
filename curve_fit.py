@@ -10,7 +10,7 @@ def fillNaN(x, y):
     length = len(x)
     yy = []
     for i in range(length):
-        if y[i] != y[i]:
+        if 0*y[i] != 0*y[i]:
             for j in range(length):
                 if y[j % length] == y[j % length]:
                     yy.append(y[j])
@@ -30,7 +30,7 @@ def fitcurve(lc_data, period):
     ydata = Mag
 
     model = SuperSmoother()
-    model.fit(xdata, ydata, Error)
+    model.fit(xdata, ydata)
 
     x = np.linspace(0, 1, num = 50).tolist()
     y = model.predict(x).tolist()
