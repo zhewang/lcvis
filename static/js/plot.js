@@ -141,7 +141,12 @@ function plotObject(id, period) {
   });
 
   plotLinearAttribute(id);
+  plotCrossMatch(id);
 };
+
+function plotCrossMatch(id) {
+
+}
 
 //////////////////////////////////////////////////////////////////////////////
 function createLinearAttribute(id) {
