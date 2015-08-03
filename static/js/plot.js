@@ -156,26 +156,32 @@ function plotCrossMatch(id, sel) {
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('td').text('Catalog');
-                t_title.append('td').text('NED');
+                t_title.append('th').text('Catalog');
+                t_title.append('th').text('NED');
 
-                var t_header = table.append("tr")
-                .selectAll("td")
-                .data(keys)
-                .enter()
-                .append("td")
-                .html(function(d) {
-                    return d;
-                })
+                var i, j, temp, chunk = 5;
+                for (i=0, j=keys.length; i < j; i += chunk) {
+                    temp = keys.slice(i,i+chunk);
 
-                var t_content = table.append("tr")
-                .selectAll("td")
-                .data(keys)
-                .enter()
-                .append("td")
-                .html(function(d) {
-                    return data[d];
-                })
+                    var t_header = table.append("tr")
+                    .selectAll("th")
+                    .data(temp)
+                    .enter()
+                    .append("th")
+                    .html(function(d) {
+                        return d;
+                    })
+
+                    var t_content = table.append("tr")
+                    .selectAll("td")
+                    .data(temp)
+                    .enter()
+                    .append("td")
+                    .html(function(d) {
+                        return data[d];
+                    })
+                }
+
             }
         }
 
@@ -186,14 +192,14 @@ function plotCrossMatch(id, sel) {
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('td').text('Catalog');
-                t_title.append('td').text('IRSA');
+                t_title.append('th').text('Catalog');
+                t_title.append('th').text('IRSA');
 
                 var t_header = table.append("tr")
-                .selectAll("td")
+                .selectAll("th")
                 .data(keys)
                 .enter()
-                .append("td")
+                .append("th")
                 .html(function(d) {
                     return d;
                 })
@@ -216,14 +222,14 @@ function plotCrossMatch(id, sel) {
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('td').text('Catalog');
-                t_title.append('td').text('SIMBAD');
+                t_title.append('th').text('Catalog');
+                t_title.append('th').text('SIMBAD');
 
                 var t_header = table.append("tr")
-                .selectAll("td")
+                .selectAll("th")
                 .data(keys)
                 .enter()
-                .append("td")
+                .append("th")
                 .html(function(d) {
                     return d;
                 })
@@ -246,14 +252,14 @@ function plotCrossMatch(id, sel) {
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('td').text('Catalog');
-                t_title.append('td').text('IRSADUST');
+                t_title.append('th').text('Catalog');
+                t_title.append('th').text('IRSADUST');
 
                 var t_header = table.append("tr")
-                .selectAll("td")
+                .selectAll("th")
                 .data(keys)
                 .enter()
-                .append("td")
+                .append("th")
                 .html(function(d) {
                     return d;
                 })
@@ -297,14 +303,14 @@ function plotLinear(id, sel) {
   var table = sel.append('table');
 
   var t_title = table.append('tr');
-  t_title.append('td').text('Catalog');
-  t_title.append('td').text('Derived');
+  t_title.append('th').text('Catalog');
+  t_title.append('th').text('Derived');
 
   var t_header = table.append("tr")
-    .selectAll("td")
+    .selectAll("th")
     .data(keys)
     .enter()
-    .append("td")
+    .append("th")
     .html(function(d) {
       return d;
     })
