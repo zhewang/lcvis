@@ -4,6 +4,13 @@ import json
 import csv
 import argparse
 
+def isfloat(value):
+  try:
+    float(value)
+    return True
+  except ValueError:
+    return False
+
 def SingleRow(inputfile):
     try:
         f = open(inputfile, 'r')
@@ -19,7 +26,7 @@ def SingleRow(inputfile):
 
     line_0 = data[0].replace('\n', '').split('\t')
     line_2 = data[2].replace('\n', '').split('\t')
-    row = {t:v for t, v in zip(line_0, line_2)}
+    row = {t:round(float(v), 8) if isfloat(v) else v for t, v in zip(line_0, line_2)}
 
     #with open(outfile, 'w') as f:
         #f.write(json.dumps(row))
@@ -39,7 +46,7 @@ def MultiRow(inputfile):
     rows = []
     for i in range(2, len(data)):
         row = data[i].replace('\n', '').split('\t')
-        row = {t:v for t, v in zip(title, row)}
+        row = {t:round(float(v), 8) if isfloat(v) else v for t, v in zip(title, row)}
         rows.append(row)
 
     #with open(outfile, 'w') as f:
