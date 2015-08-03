@@ -149,17 +149,17 @@ function plotCrossMatch(id, sel) {
 
         var plotCatalogs = {};
 
-        plotCatalogs.NED = function () {
-            var data = d.NED;
+        plotCatalogs.SingleRow = function (catalog, cols) {
+            var data = d[catalog];
             if (data != null) {
                 var keys = Object.keys(data);
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
                 t_title.append('th').text('Catalog');
-                t_title.append('th').text('NED');
+                t_title.append('th').text(catalog);
 
-                var i, j, temp, chunk = 5;
+                var i, j, temp, chunk = cols;
                 for (i=0, j=keys.length; i < j; i += chunk) {
                     temp = keys.slice(i,i+chunk);
 
@@ -185,75 +185,15 @@ function plotCrossMatch(id, sel) {
             }
         }
 
-        plotCatalogs.IRSA= function () {
-            var data = d.IRSA;
-            if (data != null) {
-                var keys = Object.keys(data);
-                var table = sel.append('table');
-
-                var t_title = table.append('tr');
-                t_title.append('th').text('Catalog');
-                t_title.append('th').text('IRSA');
-
-                var t_header = table.append("tr")
-                .selectAll("th")
-                .data(keys)
-                .enter()
-                .append("th")
-                .html(function(d) {
-                    return d;
-                })
-
-                var t_content = table.append("tr")
-                .selectAll("td")
-                .data(keys)
-                .enter()
-                .append("td")
-                .html(function(d) {
-                    return data[d];
-                })
-            }
-        }
-
-        plotCatalogs.SIMBAD = function () {
-            var data = d.SIMBAD;
-            if (data != null) {
-                var keys = Object.keys(data);
-                var table = sel.append('table');
-
-                var t_title = table.append('tr');
-                t_title.append('th').text('Catalog');
-                t_title.append('th').text('SIMBAD');
-
-                var t_header = table.append("tr")
-                .selectAll("th")
-                .data(keys)
-                .enter()
-                .append("th")
-                .html(function(d) {
-                    return d;
-                })
-
-                var t_content = table.append("tr")
-                .selectAll("td")
-                .data(keys)
-                .enter()
-                .append("td")
-                .html(function(d) {
-                    return data[d];
-                })
-            }
-        }
-
-        plotCatalogs.IRSADUST = function () {
-            var data = d.IRSADUST;
+        plotCatalogs.MultiRows = function (catalog) {
+            var data = d[catalog];
             if (data != null) {
                 var keys = Object.keys(data[0]);
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
                 t_title.append('th').text('Catalog');
-                t_title.append('th').text('IRSADUST');
+                t_title.append('th').text(catalog);
 
                 var t_header = table.append("tr")
                 .selectAll("th")
@@ -285,10 +225,10 @@ function plotCrossMatch(id, sel) {
             }
         }
 
-        var catalogs = ['NED', 'IRSA', 'SIMBAD', 'IRSADUST']
-        for(var i = 0; i < catalogs.length; i ++) {
-            plotCatalogs[catalogs[i]]();
-        }
+        plotCatalogs.SingleRow('NED', 5);
+        plotCatalogs.SingleRow('IRSA', 5);
+        plotCatalogs.SingleRow('SIMBAD', 5);
+        plotCatalogs.MultiRows('IRSADUST');
     });
 
 }
