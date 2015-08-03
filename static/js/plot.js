@@ -68,32 +68,137 @@ d3.csv(path + "object_list.csv", function(csv) {
         return d.id + " *";
     });
 
-  // load attributes
-  d3.json(path + "PLV_LINEAR.json", function(data) {
-    for (var i = 0; i < data.data.length; ++i) {
-      var id = data.data[i].LINEARobjectID;
-      objs[id]["LinearAttrs"] = data.data[i];
-    }
+    // load attributes
+    d3.json(path + "PLV_LINEAR.json", function(data) {
+        for (var i = 0; i < data.data.length; ++i) {
+            var id = data.data[i].LINEARobjectID;
+            objs[id]["LinearAttrs"] = data.data[i];
+        }
 
-    d3.json(path + "PLV_SDSS.json", function(data) {
-      for (var i = 0; i < data.data.length; ++i) {
-        var id = data.data[i].LINEARobjectID;
-        objs[id]["SDSS"] = data.data[i];
-      }
+        d3.json(path + "PLV_SDSS.json", function(data) {
+            for (var i = 0; i < data.data.length; ++i) {
+                var id = data.data[i].LINEARobjectID;
+                objs[id]["SDSS"] = data.data[i];
+            }
 
-      // plot the first object when starting
-      plotObject(csv[0].id, csv[0].period);
+            // plot the first object when starting
+            plotObject(csv[0].id, csv[0].period);
+
+            // plot SDSS color-color
+            plotU_G();
+            plotR_I();
+
+        });
 
     });
-
-  });
 
   // plot the result of PCA
   d3.json(path + "/pca.json", function(data) {
     pca_data = data;
     plotPCA(data);
   });
+
 });
+
+function plot2DScatter(data, sel) {
+    var xExtent = d3.extent(data, function(row) {
+        return row[1];
+    });
+    var yExtent = d3.extent(data, function(row) {
+        return row[2];
+    });
+
+    var plotWidth = 300;
+    var plotHeight = 300;
+
+    var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth - 30]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight - 30, 30]);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
+    var yAxis = d3.svg.axis().scale(yScale).ticks(5);
+    var colorScale = d3.scale.ordinal().domain([1, 2, 4, 5, 6, 3, 7, 8, 9, 11, 0, -1]).range([
+        "#e41a1c",
+        "#377eb8",
+        "#4daf4a",
+        "#984ea3",
+        "#ff7f00",
+        "#00ffff",
+        "#00ffff",
+        "#00ffff",
+        "#00ffff",
+        "#00ffff",
+        "#00ffff",
+        "black"
+    ]);
+
+    sel.select('svg').remove();
+    var svgSel = sel.append("svg")
+    .attr("width", plotWidth)
+    .attr("height", plotHeight);
+
+    function setDotColors(sel) {
+        sel.attr("fill", function(d) {
+            return colorScale(d[3]);
+        })
+        .attr("fill-opacity", 0.3)
+        .attr("stroke", "none")
+        .attr("cx", function(d) {
+            return xScale(d[1]);
+        })
+        .attr("cy", function(d) {
+            return yScale(d[2]);
+        })
+        .attr("r", 3);
+    }
+
+    var circleSel = svgSel.selectAll("circle").data(data).enter();
+
+    circleSel.append("circle")
+    .classed("clickable", true)
+    .call(setDotColors);
+
+    svgSel.append("g")
+    .attr("transform", "translate(0, " + (plotHeight - 30).toString() + ")")
+    .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+    .attr("transform", "translate(50, 0)")
+    .call(yAxis);
+}
+
+function plotU_G() {
+    var ids = Object.keys(objs);
+    data = [];
+    for(var i = 0; i < ids.length; i ++){
+        if (objs[ids[i]].SDSS.u > -9.9) {
+            row = [];
+            row[0] = ids[i];
+            row[1] = objs[ids[i]].SDSS.u;
+            row[2] = objs[ids[i]].SDSS.g;
+            row[3] = objs[ids[i]].LinearAttrs.LCtype;
+            data.push(row);
+        }
+    }
+    var sel = d3.select('#plotU_G');
+    plot2DScatter(data, sel);
+}
+
+function plotR_I() {
+    var ids = Object.keys(objs);
+    data = [];
+    for(var i = 0; i < ids.length; i ++){
+        if (objs[ids[i]].SDSS.u > -9.9) {
+            row = [];
+            row[0] = ids[i];
+            row[1] = objs[ids[i]].SDSS.r;
+            row[2] = objs[ids[i]].SDSS.i;
+            row[3] = objs[ids[i]].LinearAttrs.LCtype;
+            data.push(row);
+        }
+    }
+    var sel = d3.select('#plotR_I');
+    plot2DScatter(data, sel);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // plot a periodic astro-object
@@ -110,7 +215,7 @@ function plotObject(id, period) {
     }
 
     // plot mag vs. time
-    plotTimeMag(json, 330, 200);
+    plotTimeMag(json, 320, 200);
     if (period > 0) {
       var curve_data_file = path + id.toString() + ".fit.json";
       var points = [];
@@ -248,7 +353,7 @@ function plotCrossMatch(id, sel) {
         }
 
         plotCatalogs.SingleRow('Derived', objs[id].LinearAttrs, 12);
-        plotCatalogs.SingleRow('NED', d.NED, 5);
+        plotCatalogs.SingleRow('NED', d.NED, 4);
         plotCatalogs.SingleRow('IRSA', d.IRSA, 5);
         plotCatalogs.SingleRow('SIMBAD', d.SIMBAD, 4);
         plotCatalogs.MultiRows('IRSADUST', d.IRSADUST);
