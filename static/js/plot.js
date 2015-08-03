@@ -142,23 +142,43 @@ function plotObject(id, period) {
 
 };
 
+//////////////////////////////////////////////////////////////////////////////
+function plotAttribute(id) {
+  var sel = d3.select("#plotAttribute");
+  sel.selectAll("table").remove();
+  if (id !== 'clean') {
+      plotCrossMatch(id, sel);
+  }
+}
+
+function setTitleStyle(sel) {
+    sel.attr('bgcolor', '#bdbdbd');
+}
+
+function setHeaderStyle(sel) {
+    sel.attr('bgcolor', '#bdbdbd');
+}
+
+function setCellStyle(sel) {
+    sel.attr('bgcolor', '#f0f0f0');
+}
+
 function plotCrossMatch(id, sel) {
     d3.json(path+'/external_associations_json/'+id+'.external.json', function(error, d) {
         if (error) return console.log("No cross match data.");
 
         var plotCatalogs = {};
-
-        plotCatalogs.SingleRow = function (catalog, cols) {
-            var data = d[catalog];
+        plotCatalogs.SingleRow = function (catalog, data, cols) {
             if (data != null) {
                 var keys = Object.keys(data);
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('th').text('Catalog');
-                t_title.append('th').text(catalog);
+                t_title.append('th').text('Catalog').call(setTitleStyle);
+                t_title.append('th').text(catalog).call(setTitleStyle);
 
                 var i, j, temp, chunk = cols;
+                if(cols == null) chunk = keys.length;
                 for (i=0, j=keys.length; i < j; i += chunk) {
                     temp = keys.slice(i,i+chunk);
 
@@ -170,6 +190,7 @@ function plotCrossMatch(id, sel) {
                     .html(function(d) {
                         return d;
                     })
+                    .call(setHeaderStyle);
 
                     var t_content = table.append("tr")
                     .selectAll("td")
@@ -179,20 +200,20 @@ function plotCrossMatch(id, sel) {
                     .html(function(d) {
                         return data[d];
                     })
+                    .call(setCellStyle);
                 }
 
             }
         }
 
-        plotCatalogs.MultiRows = function (catalog) {
-            var data = d[catalog];
+        plotCatalogs.MultiRows = function (catalog, data) {
             if (data != null) {
                 var keys = Object.keys(data[0]);
                 var table = sel.append('table');
 
                 var t_title = table.append('tr');
-                t_title.append('th').text('Catalog');
-                t_title.append('th').text(catalog);
+                t_title.append('th').text('Catalog').call(setTitleStyle);
+                t_title.append('th').text(catalog).call(setTitleStyle);
 
                 var t_header = table.append("tr")
                 .selectAll("th")
@@ -202,6 +223,7 @@ function plotCrossMatch(id, sel) {
                 .html(function(d) {
                     return d;
                 })
+                .call(setHeaderStyle);
 
                 var matrix = [];
                 for(var i = 0; i < data.length; i ++) {
@@ -221,56 +243,17 @@ function plotCrossMatch(id, sel) {
                 .html(function(d, i) {
                     return d;
                 })
+                .call(setCellStyle);
             }
         }
 
-        plotCatalogs.SingleRow('NED', 5);
-        plotCatalogs.SingleRow('IRSA', 5);
-        plotCatalogs.SingleRow('SIMBAD', 5);
-        plotCatalogs.MultiRows('IRSADUST');
+        plotCatalogs.SingleRow('Derived', objs[id].LinearAttrs, 12);
+        plotCatalogs.SingleRow('NED', d.NED, 5);
+        plotCatalogs.SingleRow('IRSA', d.IRSA, 5);
+        plotCatalogs.SingleRow('SIMBAD', d.SIMBAD, 4);
+        plotCatalogs.MultiRows('IRSADUST', d.IRSADUST);
     });
 
-}
-
-//////////////////////////////////////////////////////////////////////////////
-function plotLinear(id, sel) {
-
-  var data = objs[id].LinearAttrs;
-  delete data.LINEARobjectID;
-  var keys = Object.keys(data);
-
-  var table = sel.append('table');
-
-  var t_title = table.append('tr');
-  t_title.append('th').text('Catalog');
-  t_title.append('th').text('Derived');
-
-  var t_header = table.append("tr")
-    .selectAll("th")
-    .data(keys)
-    .enter()
-    .append("th")
-    .html(function(d) {
-      return d;
-    })
-
-  var t_content = table.append("tr")
-    .selectAll("td")
-    .data(keys)
-    .enter()
-    .append("td")
-    .html(function(d) {
-      return data[d];
-    })
-}
-
-function plotAttribute(id) {
-  var sel = d3.select("#plotAttribute");
-  sel.selectAll("table").remove();
-  if (id !== 'clean') {
-      plotLinear(id, sel);
-      plotCrossMatch(id, sel);
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
