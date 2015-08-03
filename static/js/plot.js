@@ -140,7 +140,6 @@ function plotObject(id, period) {
     }
   });
 
-  plotAttribute(id);
 };
 
 function plotCrossMatch(id, sel) {
@@ -268,8 +267,10 @@ function plotLinear(id, sel) {
 function plotAttribute(id) {
   var sel = d3.select("#plotAttribute");
   sel.selectAll("table").remove();
-  plotLinear(id, sel);
-  plotCrossMatch(id, sel);
+  if (id !== 'clean') {
+      plotLinear(id, sel);
+      plotCrossMatch(id, sel);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -766,6 +767,9 @@ function plotPCA(data) {
     var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + sdss.RA + '&dec=' + sdss.Dec + '&scale=0.4&width=280&height=280&opt=L&query=&Label=on';
     d3.select("#obj_img").append("img")
       .attr('src', imgsrc);
+
+      // plot external catalog info
+      plotAttribute(d[3]);
   }
 
   function unhighlightDot(sel) {
@@ -778,6 +782,7 @@ function plotPCA(data) {
     pinnedDotSel = null;
 
     d3.select("#obj_img").select("img").remove();
+    plotAttribute('clean');
   }
 
   circleSel.append("circle")
