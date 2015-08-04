@@ -352,7 +352,7 @@ function plotCrossMatch(id, sel) {
             }
         }
 
-        plotCatalogs.SingleRow('Derived', objs[id].LinearAttrs, 12);
+        plotCatalogs.SingleRow('LINEAR', objs[id].LinearAttrs, 12);
         plotCatalogs.SingleRow('NED', d.NED, 4);
         plotCatalogs.SingleRow('IRSA', d.IRSA, 5);
         plotCatalogs.SingleRow('SIMBAD', d.SIMBAD, 4);
