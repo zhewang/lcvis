@@ -100,7 +100,7 @@ d3.csv(path + "object_list.csv", function(csv) {
 
 });
 
-function plot2DScatter(data, sel) {
+function plot2DScatter(data, sel, title) {
     var xExtent = d3.extent(data, function(row) {
         return row[1];
     });
@@ -164,6 +164,11 @@ function plot2DScatter(data, sel) {
     svgSel.append("g")
     .attr("transform", "translate(50, 0)")
     .call(yAxis);
+
+    svgSel.append('text')
+          .attr('x', 120)
+          .attr('y', 40)
+          .text(title);
 }
 
 function plotU_G() {
@@ -180,7 +185,7 @@ function plotU_G() {
         }
     }
     var sel = d3.select('#plotU_G');
-    plot2DScatter(data, sel);
+    plot2DScatter(data, sel, 'u-g (SDSS)');
 }
 
 function plotR_I() {
@@ -197,7 +202,7 @@ function plotR_I() {
         }
     }
     var sel = d3.select('#plotR_I');
-    plot2DScatter(data, sel);
+    plot2DScatter(data, sel, 'r-i (SDSS)');
 }
 
 //////////////////////////////////////////////////////////////////////////////
