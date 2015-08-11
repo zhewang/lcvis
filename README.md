@@ -6,7 +6,7 @@ This project is just a website. Firstly, please clone the repo to your disk. The
 
 Secondly, install `Flask`. You can do so by `pip3 install flask`.
 
-Then go to the root directory and type `python3 main.py`. 
+Then go to the root directory of the repo and type `python3 main.py`. 
 
 Finally, open your browser and go to `http://localhost:8080` for periodic astro-objects 
 and `http://localhost:8080/supernova` for supernova.
