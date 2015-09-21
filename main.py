@@ -12,6 +12,10 @@ def index():
 def supernova():
     return render_template('supernova.html')
 
+@app.route('/new')
+def splinenew():
+    return render_template('index_new.html')
+
 @app.route('/plotusers', methods=['post'])
 def plotusers():
     data = request.get_json()

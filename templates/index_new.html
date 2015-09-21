@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <script src="{{ url_for('static', filename='js/d3.v3.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/plot_new.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/errorPlot.js') }}"></script>
+        <style>
+        html, body {
+            font-family: "Helvetica Neue", Arial;
+            font-weight: 300;
+        }
+        table, th, td {
+            font-size : 14px;
+            border-collapse: collapse;
+            border: 1px solid black;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .important {
+            font-size: 300%;
+        }
+        .tick > line {
+            fill: none;
+            stroke: black;
+        }
+        .tick > text {
+            fill: black;
+        }
+        path.domain {
+            fill: none;
+            stroke-width: 2px;
+            stroke: black;
+        }
+        .legend {
+            font-family: "Helvetica Neue", Arial;
+            font-weight: 300;
+            font-size: 10pt;
+        }
+        .my-chart {
+            fill: #bbb;
+            background-color: #fee;
+        }
+        .clickable {
+            cursor: pointer;
+        }
+        .left {
+            float: left;
+            width: 600px;
+            height: 1000px;
+            padding: 0px;
+            border: 1px solid grey;
+        }
+        .right{
+            margin-left: 610px;
+            width: 650px;
+            height: 1000px;
+            padding: 0px;
+            border: 1px solid grey;
+            overflow: auto;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="left">
+            <div style="margin-left: 20px;">
+                <input type="file" id="fileInput">
+                <button onclick='plotUserObject()'>Plot Uploaded Object</button>
+                <button onclick='clearUserObject()'>Clear User Object</button>
+            </div>
+            <div id="plotPCA"></div>
+            <div id="plotU_G" style="float:left"></div>
+            <div id="plotR_I" style="float:left"></div>
+        </div>
+
+        <div class='right'>
+            <div id="selection" style="margin-left: 20px"></div>
+            <div id="plotTimeMag" style="float:left;"></div>
+            <div id="plotPhaseMag" style="float:left;"></div>
+            <div id="plotPhaseMagScaled" style="float:left"></div>
+            <div id="plotErrorHistogram" style="float:left"></div>
+            <div id="obj_img" style="margin-left:350px"></div>
+            <div id="plotAttribute" style="margin-left:20px"></div>
+        </div>
+    </body>
+</html>
