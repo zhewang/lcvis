@@ -12,6 +12,7 @@ function changePlot(newPlotId) {
   }
 
   var period = objs[newPlotId].period;
+  console.log(newPlotId);
 
   // plot current selection
   plotObject(newPlotId, period);
@@ -32,10 +33,12 @@ d3.selection.prototype.moveToFront = function() {
   });
 };
 
-d3.json(path + "ogle4.exists.list.json", function(json) {
+d3.json(path + "ogle.exists.list.json", function(json) {
     for (var i = 0; i < json.length; ++i) {
         objs[json[i].ID] = {
+            survey: json[i].survey,
             id:  json[i].ID,
+            field: json[i].field,
             period: json[i].P,
             index: i
         };
@@ -188,8 +191,13 @@ function plotR_I() {
 //////////////////////////////////////////////////////////////////////////////
 // plot a periodic astro-object
 function plotObject(id, period) {
-  var data_file = path + "ogle4_"+ id.toString() + ".dat.json";
-  var error_file = path + "ogle4_"+ id.toString() + ".error.json";
+  var filename = objs[id].survey+'_'+objs[id].field+'_'+id.toString();
+  if (objs[id].survey == 'ogle4') {
+    filename = objs[id].survey+'_'+objs[id].field+id.toString();
+  }
+  var data_file = path + filename + ".dat.json";
+  var curve_data_file = path + filename + ".fit.json";
+  var error_file = path + filename + ".error.json";
   console.log(data_file);
 
   d3.json(data_file, function(json) {
@@ -203,7 +211,6 @@ function plotObject(id, period) {
     // plot mag vs. time
     plotTimeMag(json, 320, 200);
     if (period > 0) {
-      var curve_data_file = path + "ogle4_"+id.toString() + ".fit.json";
       var points = [];
       d3.json(curve_data_file, function(curve_data) {
         for (var i = 0; i < curve_data[0].mag.length; ++i) {
@@ -220,6 +227,7 @@ function plotObject(id, period) {
         plotPhaseMagScaled(json, period, points, 360, 250);
 
         d3.json(error_file, function(json) {
+            console.log(error_file);
           plotErrorHistogram(json, 300, 300);
         });
       });

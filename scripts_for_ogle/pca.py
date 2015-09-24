@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import csv
 import json
 import pickle
@@ -46,7 +47,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     matrix = []
-    j = json.load(open('{}/ogle4.exists.list.json'.format(args.path)))
+    j = json.load(open('{}/ogle.exists.list.json'.format(args.path)))
 
     metadata = dict((obj["ID"], obj) for obj in j)
     obj_ids = []
@@ -56,8 +57,15 @@ if __name__ == '__main__':
     for row in j:
         obj_id = row['ID']
         period = row['P']
+        prefix = "{}_{}_{}".format(row['survey'], row['field'], row['ID'])
+        if row['survey'] == 'ogle4':
+            prefix = "{}_{}{}".format(row['survey'], row['field'], row['ID'])
 
-        v = loadMagData(args.path+'/'+"ogle4_"+str(obj_id)+'.fit.json')
+        print(args.path+'/'+prefix+'.fit.json')
+        v = loadMagData(args.path+'/'+prefix+'.fit.json')
+        if len(v) <= 0:
+            continue
+
         for i in range(row_length - len(v)):
             v.append(v[0])
         matrix.append(v)
@@ -84,7 +92,21 @@ if __name__ == '__main__':
 
     vec = np.array(matrix)
     vec.shape = (len(matrix), row_length)
+
+    t = datetime.datetime.now()
+    timestamp = "{:02d}:{:02d}:{:02d}.{:06d}".format(t.hour,
+                                                     t.minute,
+                                                     t.second,
+                                                     t.microsecond)
+
+    print("{}: Calculating PCA...".format(timestamp))
     results = PCA(vec)
+    t = datetime.datetime.now()
+    timestamp = "{:02d}:{:02d}:{:02d}.{:06d}".format(t.hour,
+                                                     t.minute,
+                                                     t.second,
+                                                     t.microsecond)
+    print("{}: Done.".format(timestamp))
 
     data = []
 
