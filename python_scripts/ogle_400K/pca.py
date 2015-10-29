@@ -52,15 +52,14 @@ if __name__ == '__main__':
     obj_ids = []
     data = json.load(open(args.path))
 
-    for objid in data:
-        bands = data[objid]['bands']
+    for objid in data['data']:
+        bands = data['data'][objid]['bands']
         if args.band in bands:
-            vec = data[objid][args.band]['mag']
+            vec = data['data'][objid][args.band]['mag']
 
             # phase is the same for all the objects in fitting data
             if GLOBAL_PHASE is None:
-                GLOBAL_PHASE = np.array(data[objid][args.band]['phase'],
-                                        dtype=np.float32)
+                GLOBAL_PHASE = np.array(data['phase'], dtype=np.float32)
             if len(vec) != 0:
                 obj_ids.append(objid)
                 matrix.append(vec)

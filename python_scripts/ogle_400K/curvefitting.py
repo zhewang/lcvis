@@ -48,13 +48,12 @@ def fitcurve(lc_data_all_band, period):
         x = np.linspace(0, 1, num = 50).tolist()
         y = model.predict(x).tolist()
 
-        data = {"phase": [], "mag": []}
+        data = {"mag": []}
 
         y = fillNaN(y)
 
         for i in range(len(y)):
             if y[i] == y[i]:
-                data["phase"].append(round(x[i], 6))
                 data["mag"].append(round(y[i], 6))
 
         #if len(data['mag']) == 0:
@@ -111,9 +110,14 @@ if __name__ == '__main__':
 
         results = pool.starmap(feature_derive, parameters)
 
+        FIT['data'] = {}
+        FIT['phase'] = np.linspace(0, 1, num = 50).tolist()
+        FITErr['data'] = {}
+        FITErr['phase'] = np.linspace(0, 1, num = 50).tolist()
+
         for result in results:
-            FIT[result[0]] = result[1]
-            FITErr[result[0]] = result[2]
+            FIT['data'][result[0]] = result[1]
+            FITErr['data'][result[0]] = result[2]
 
         f_fit = "./lightcurves/{}/fit.json".format(meta['survey'])
         f_residual = "./lightcurves/{}/fit_error.json".format(meta['survey'])
