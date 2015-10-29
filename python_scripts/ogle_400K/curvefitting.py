@@ -91,9 +91,9 @@ if __name__ == '__main__':
     with open(args.metafile) as f:
         meta = json.load(f)
 
-        raw_dir = "./lightcurves/{}/raw/".format(meta['survey'])
-        fit_dir = "./lightcurves/{}/fit/".format(meta['survey'])
-        fit_error_dir = "./lightcurves/{}/fit_error/".format(meta['survey'])
+        #raw_dir = "./lightcurves/{}/raw/".format(meta['survey'])
+        #fit_dir = "./lightcurves/{}/fit/".format(meta['survey'])
+        #fit_error_dir = "./lightcurves/{}/fit_error/".format(meta['survey'])
 
         pool = Pool(4)
         parameters = []
