@@ -36,28 +36,31 @@ def pca(ids, matrix):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('path', help='Path to data file')
     parser.add_argument('band', help='Calculate on which band')
     args = parser.parse_args()
 
     GLOBAL_PHASE = None
     matrix = []
     obj_ids = []
-    data = json.load(open(args.path))
+    surveys = ['ogle1', 'ogle2', 'ogle4']
 
-    for objid in data['data']:
-        bands = data['data'][objid]['bands']
-        if args.band in bands:
-            vec = data['data'][objid][args.band]['mag']
+    for s in surveys:
+        path = "./lightcurves/{}/fit.json".format(s)
+        data = json.load(open(path))
+        for objid in data['data']:
+            bands = data['data'][objid]['bands']
+            if args.band in bands:
+                vec = data['data'][objid][args.band]['mag']
 
-            # phase is the same for all the objects in fitting data
-            if GLOBAL_PHASE is None:
-                GLOBAL_PHASE = np.array(data['phase'], dtype=np.float32)
-            if len(vec) == len(GLOBAL_PHASE):
-                obj_ids.append(objid)
-                matrix.append(vec)
-            else:
-                print('{} is empty.'.format(objid))
+                # phase is the same for all the objects in fitting data
+                if GLOBAL_PHASE is None:
+                    GLOBAL_PHASE = np.array(data['phase'], dtype=np.float32)
+                if len(vec) == len(GLOBAL_PHASE):
+                    obj_ids.append(objid)
+                    matrix.append(vec)
+                else:
+                    pass
+                    #print('{} is empty.'.format(objid))
 
     print('{} rows'.format(len(obj_ids)))
 
