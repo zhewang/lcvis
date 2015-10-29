@@ -4,7 +4,8 @@ import json
 import os
 import numpy as np
 import warnings
-# import matplotlib.pyplot as plt
+
+from multiprocessing import Pool
 from supersmoother import SuperSmoother
 from scipy import interpolate
 
@@ -13,9 +14,10 @@ warnings.simplefilter('ignore')
 #RAWLC = {}
 FIT = {}
 FITErr = {}
+COUNTER = 0
 
-def fillNaN(x, y):
-    length = len(x)
+def fillNaN(y):
+    length = len(y)
     yy = []
     for i in range(length):
         if 0*y[i] != 0*y[i]:
@@ -25,7 +27,7 @@ def fillNaN(x, y):
                     break
         else:
             yy.append(y[i])
-    return x, yy
+    return yy
 
 def fitcurve(lc_data_all_band, period):
     fitresults = {'bands': lc_data_all_band['bands']}
@@ -48,14 +50,19 @@ def fitcurve(lc_data_all_band, period):
         x = np.linspace(0, 1, num = 50).tolist()
         y = model.predict(x).tolist()
 
-        data = [{"phase": [], "mag": []}]
+        data = {"phase": [], "mag": []}
 
-        x, y = fillNaN(x, y)
+        y = fillNaN(y)
 
         for i in range(len(y)):
             if y[i] == y[i]:
-                data[0]["phase"].append(round(x[i], 6))
-                data[0]["mag"].append(round(y[i], 6))
+                data["phase"].append(round(x[i], 6))
+                data["mag"].append(round(y[i], 6))
+
+        if len(data['mag']) == 0:
+            print(xdata)
+            print(ydata)
+            print('\n')
 
         residual = model.predict(xdata) - ydata
         error = []
@@ -67,13 +74,15 @@ def fitcurve(lc_data_all_band, period):
             else:
                 error.append(round(e, 6))
 
+
         fitresults[band] = data
         fiterror[band] = error
 
     return fitresults, fiterror
 
-def feature_derive(fileName, uid, period):
+def feature_derive(fileName, uid, period, raw_json):
     # lc_data = {'bands': ['V', 'I'], 'V':[{},{},{},...], 'I':[{}, {}, ...]}
+    global COUNTER
     lc_data = {'bands':[]}
     with open(fileName) as f:
         f.readline()
@@ -87,14 +96,13 @@ def feature_derive(fileName, uid, period):
                                          'mag': cols[1],
                                          'error': cols[2]})
 
-    #RAWLC[uid] = lc_data
+    f_out = open(raw_json, 'w')
+    f_out.write(json.dumps(lc_data))
+    f_out.close()
 
     fit_data, residual = fitcurve(lc_data, period)
 
-    FIT[uid] = fit_data
-    FITErr[uid] = residual
-
-    return lc_data, fit_data, residual
+    return uid, fit_data, residual
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -112,27 +120,33 @@ if __name__ == '__main__':
         #os.makedirs(os.path.dirname(fit_dir), exist_ok=True)
         #os.makedirs(os.path.dirname(fit_error_dir), exist_ok=True)
 
+        pool = Pool(4)
+        parameters = []
+
         for obj in meta['data']:
             if obj['P'] == obj['P']:
                 prefix = obj['uid']
                 dat_header = prefix
                 if meta['survey'] == 'ogle4':
                     dat_header = "{}_{}{}".format('ogle4', obj['field'], obj['ID'])
-                #print(prefix)
 
                 lc_data_file = "./{}/{}.dat".format(obj['type'], dat_header)
                 raw_json= "./lightcurves/{}/raw/{}.dat.json".format(meta['survey'], prefix)
 
                 if os.path.exists(lc_data_file):
                     if obj['P'] != 'null':
-                        raw_data, fit_data, fit_error = feature_derive(lc_data_file, obj['uid'], obj['P'])
-                        f_out = open(raw_json, 'w')
-                        f_out.write(json.dumps(raw_data))
-                        f_out.close()
+                        parameters.append((lc_data_file, obj['uid'], obj['P'], raw_json,))
+                        #raw_data, fit_data, fit_error = feature_derive(lc_data_file, obj['uid'], obj['P'], raw_json)
                 else:
                     print('{} does not exist'.format(lc_data_file))
             else:
                 print('{} does not exist'.format(lc_data_file))
+
+        results = pool.starmap(feature_derive, parameters)
+
+        for result in results:
+            FIT[result[0]] = result[1]
+            FITErr[result[0]] = result[2]
 
         json_data = "./lightcurves/{}/raw.json".format(meta['survey'])
         f_fit = "./lightcurves/{}/fit.json".format(meta['survey'])
