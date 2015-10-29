@@ -18,32 +18,19 @@ FITErr = {}
 def norm(mag):
     global GLOBAL_PHASE
     phase = GLOBAL_PHASE
-    mag = mag - np.mean(mag)
+    mag = (mag - np.mean(mag)).tolist()
 
     magPeak = 100
     phasePeak = -1
+    iPeak = -1
 
     for i in range(len(mag)):
         if mag[i] < magPeak:
             magPeak = mag[i]
-            phasePeak = phase[i]
+            iPeak = i
+            #phasePeak = phase[i]
 
-    shift = phasePeak - 0.3
-    for i in range(len(phase)):
-        phase[i] = phase[i] - shift
-        if phase[i] > 1:
-            phase[i] = phase[i] - 1
-        elif phase[i] < 0:
-            phase[i] = phase[i] + 1
-
-    mag_phase_scaled = {}
-    for i in range(len(mag)):
-        mag_phase_scaled[phase[i]] = mag[i]
-
-    sort_data = sorted(mag_phase_scaled.items())
-    result_mag = []
-    for i in sort_data:
-        result_mag.append(i[1])
+    result_mag = mag[iPeak:]+mag[:iPeak]
 
     return result_mag
 
