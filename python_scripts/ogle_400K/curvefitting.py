@@ -14,6 +14,40 @@ warnings.simplefilter('ignore')
 FIT = {}
 FITErr = {}
 
+
+def norm(mag):
+    global GLOBAL_PHASE
+    phase = GLOBAL_PHASE
+    mag = mag - np.mean(mag)
+
+    magPeak = 100
+    phasePeak = -1
+
+    for i in range(len(mag)):
+        if mag[i] < magPeak:
+            magPeak = mag[i]
+            phasePeak = phase[i]
+
+    shift = phasePeak - 0.3
+    for i in range(len(phase)):
+        phase[i] = phase[i] - shift
+        if phase[i] > 1:
+            phase[i] = phase[i] - 1
+        elif phase[i] < 0:
+            phase[i] = phase[i] + 1
+
+    mag_phase_scaled = {}
+    for i in range(len(mag)):
+        mag_phase_scaled[phase[i]] = mag[i]
+
+    sort_data = sorted(mag_phase_scaled.items())
+    result_mag = []
+    for i in sort_data:
+        result_mag.append(i[1])
+
+    return result_mag
+
+
 def fillNaN(y):
     length = len(y)
     yy = []
@@ -27,7 +61,9 @@ def fillNaN(y):
             yy.append(y[i])
     return yy
 
+
 def fitcurve(lc_data_all_band, period):
+    global GLOBAL_PHASE
     fitresults = {'bands': lc_data_all_band['bands']}
     fiterror = {'bands': lc_data_all_band['bands']}
     for band in lc_data_all_band['bands']:
@@ -45,56 +81,51 @@ def fitcurve(lc_data_all_band, period):
         model = SuperSmoother()
         model.fit(xdata, ydata)
 
-        x = np.linspace(0, 1, num = 50).tolist()
+        #x = np.linspace(0, 1, num = 50).tolist()
+        x = GLOBAL_PHASE
         y = model.predict(x).tolist()
 
         data = {"mag": []}
-
-        y = fillNaN(y)
-
-        for i in range(len(y)):
-            if y[i] == y[i]:
-                data["mag"].append(round(y[i], 6))
-
-        #if len(data['mag']) == 0:
-            #print(xdata)
-            #print(ydata)
-            #print('\n')
-
-        residual = model.predict(xdata) - ydata
         error = []
-        for e in residual:
-            if e != e:
-                error.append(0)
-            elif e*0 != 0:
-                error.append(0)
-            else:
-                error.append(round(e, 6))
+
+        if len(y) > 0:
+            y = fillNaN(y)
+            y = norm(y)
+            y = [round(d, 6) for d in y]
+            data["mag"] = y
+
+            residual = model.predict(xdata) - ydata
+            for e in residual:
+                if e != e:
+                    error.append(0)
+                elif e*0 != 0:
+                    error.append(0)
+                else:
+                    error.append(round(e, 6))
 
 
-        fitresults[band] = data
-        fiterror[band] = error
+            fitresults[band] = data
+            fiterror[band] = error
 
     return fitresults, fiterror
+
 
 def feature_derive(uid, period, raw_json):
     lc_data = json.load(open(raw_json))
     fit_data, residual = fitcurve(lc_data, period)
     return uid, fit_data, residual
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('metafile')
     args = parser.parse_args()
 
+    GLOBAL_PHASE = np.linspace(0, 1, num = 50).tolist()
+
     with open(args.metafile) as f:
         meta = json.load(f)
 
-        #raw_dir = "./lightcurves/{}/raw/".format(meta['survey'])
-        #fit_dir = "./lightcurves/{}/fit/".format(meta['survey'])
-        #fit_error_dir = "./lightcurves/{}/fit_error/".format(meta['survey'])
-
-        pool = Pool(4)
         parameters = []
 
         for obj in meta['data']:
@@ -108,6 +139,7 @@ if __name__ == '__main__':
             else:
                 print('{} does not have period'.format(obj['uid']))
 
+        pool = Pool(4)
         results = pool.starmap(feature_derive, parameters)
 
         FIT['data'] = {}
