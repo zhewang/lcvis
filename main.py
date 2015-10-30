@@ -22,4 +22,8 @@ def plotusers():
     position = po.project(data['lc'], data['p'])
     return jsonify(position)
 
+@app.route('/fastpca')
+def fastpca():
+    return render_template('fastpca.html')
+
 app.run(port=8080, debug=True)

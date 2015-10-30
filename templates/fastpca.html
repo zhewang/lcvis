@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <script src="{{ url_for('static', filename='js/d3.v3.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/fastpca.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/errorPlot.js') }}"></script>
+
+        <style>
+        path.domain {
+            fill: none;
+            stroke-width: 2px;
+            stroke: black;
+        }
+        .tick > line {
+            fill: none;
+            stroke: black;
+        }
+        .tick > text {
+            fill: black;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="ra_dec_scatter"></div>
+        <div id="plotPCA"></div>
+    </body>
+</html>
