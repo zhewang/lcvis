@@ -6,7 +6,6 @@ d3.json(PATH+"list.json", function(json) {
 
     var plotAfterLoadingFinished = function (count) {
         if(count == json.surveys.length) {
-            console.log("plot ra dec");
             plotRaDec(OBJS);
         }
     };
