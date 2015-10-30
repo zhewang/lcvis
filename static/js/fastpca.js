@@ -1,6 +1,5 @@
 var PATH = "/static/data/";
 var OBJS = [];
-var LCDATA = []; // light curves
 
 d3.json(PATH+"list.json", function(json) {
     var listCount = 0;
@@ -12,7 +11,8 @@ d3.json(PATH+"list.json", function(json) {
     };
 
     for(var i = 0; i < json.surveys.length; i++) {
-        d3.json(PATH+json.surveys[i], function(d) {
+        // load meta data
+        d3.json(PATH+json.surveys[i]+'_meta.json', function(d) {
             for(var j = 0; j < d.data.length; j++) {
                 OBJS[d.data[j].uid] = d.data[j];
             }
@@ -22,10 +22,6 @@ d3.json(PATH+"list.json", function(json) {
     }
 });
 
-d3.json(PATH+"pca.json", function(json) {
-    LCDATA = json;
-    //plotPCA(json);
-});
 
 function plotRaDec(data_dict) {
     data = [];
@@ -76,7 +72,7 @@ function plotRaDec(data_dict) {
                 uids.push(OBJS[key].uid);
             }
         }
-        plotPCA(getPCADataFromUID(uids));
+        calculatePCA(uids);
     };
 
     function brushend() {
@@ -85,18 +81,8 @@ function plotRaDec(data_dict) {
             for(var key in OBJS) {
                 uids.push(OBJS[key].uid);
             }
-            plotPCA(getPCADataFromUID(uids));
+            calculatePCA(uids);
         }
-    };
-
-    function getPCADataFromUID(uids) {
-        lc_selected = [];
-        for(var i = 0; i < LCDATA.length; i ++) {
-            if($.inArray(LCDATA[i][2], uids) != -1) {
-                lc_selected.push(LCDATA[i]);
-            }
-        }
-        return lc_selected;
     };
 
     // Scatter plot
@@ -130,8 +116,6 @@ function plotRaDec(data_dict) {
     svgSel.append("g")
     .attr("transform", "translate(50, 0)")
     .call(yAxis);
-
-
 }
 
 
@@ -193,4 +177,19 @@ function plotPCA(data) {
     svgSel.append("g")
     .attr("transform", "translate(50, 0)")
     .call(yAxis);
+}
+
+function calculatePCA(uids) {
+    if(uids.length > 0) {
+        $.ajax({
+            url: "/calculatepca",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(uids),
+            success: function(d) {
+                plotPCA(d.data);
+            }
+        });
+    }
 }

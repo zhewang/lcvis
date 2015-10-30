@@ -26,4 +26,12 @@ def plotusers():
 def fastpca():
     return render_template('fastpca.html')
 
+@app.route('/calculatepca', methods=['post'])
+def calculatepca():
+    uids = request.get_json()
+    # TODO: calculate pca
+    pca_result = {'data':[[1,2, 3], [2, 1, 6]]}
+    return jsonify(pca_result)
+
+
 app.run(port=8080, debug=True)
