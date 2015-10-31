@@ -1,8 +1,8 @@
 var PATH = "/static/data/";
+var OBJS = [];
 
 d3.json(PATH+"list.json", function(json) {
     var listCount = 0;
-    var OBJS = [];
 
     var plotAfterLoadingFinished = function (count) {
         if(count == json.surveys.length) {
@@ -11,9 +11,10 @@ d3.json(PATH+"list.json", function(json) {
     };
 
     for(var i = 0; i < json.surveys.length; i++) {
-        d3.json(PATH+json.surveys[i], function(d) {
+        // load meta data
+        d3.json(PATH+json.surveys[i]+'_meta.json', function(d) {
             for(var j = 0; j < d.data.length; j++) {
-                OBJS.push(d.data[j]);
+                OBJS[d.data[j].uid] = d.data[j];
             }
             listCount ++;
             plotAfterLoadingFinished(listCount);
@@ -21,11 +22,13 @@ d3.json(PATH+"list.json", function(json) {
     }
 });
 
-d3.json(PATH+"pca.json", function(json) {
-    plotPCA(json);
-});
 
-function plotRaDec(data) {
+function plotRaDec(data_dict) {
+    data = [];
+    for(var key in data_dict) {
+        data.push(data_dict[key]);
+    }
+
     var xExtent = d3.extent(data, function(row) {
         return Number(row.ra);
     });
@@ -48,7 +51,42 @@ function plotRaDec(data) {
         .attr("width", plotWidth)
         .attr("height", plotHeight);
 
-    function setDotColors(sel) {
+
+    // Brush
+    var brush = svgSel.append("g")
+        .attr("class", "brush")
+        .call(d3.svg.brush()
+        .x(xScale)
+        .y(yScale)
+        .on("brush", brushmove)
+        .on("brushend", brushend));
+
+    function brushmove() {
+        var extent = d3.event.target.extent();
+        var uids = [];
+        for(var key in OBJS) {
+            if(OBJS[key].ra >= extent[0][0] &&
+               OBJS[key].dec >= extent[0][1] &&
+               OBJS[key].ra <= extent[1][0] &&
+               OBJS[key].dec <= extent[1][1]) {
+                uids.push(OBJS[key].uid);
+            }
+        }
+        calculatePCA(uids);
+    };
+
+    function brushend() {
+        if (d3.event.target.empty()) {
+            var uids = [];
+            for(var key in OBJS) {
+                uids.push(OBJS[key].uid);
+            }
+            calculatePCA(uids);
+        }
+    };
+
+    // Scatter plot
+    var setDotColors = function (sel) {
         sel.attr("fill", 'black')
         .attr("fill-opacity", 0.15)
         .attr("stroke", "none")
@@ -61,9 +99,9 @@ function plotRaDec(data) {
         .attr("r", 3)
         .classed("clickable", true)
         .on("mouseover", function(d) {
-            console.log(d.uid);
+            //console.log(d.uid);
         });
-    }
+    };
 
     var circleSel = svgSel.selectAll("circle").data(data).enter()
         .append("circle")
@@ -122,7 +160,7 @@ function plotPCA(data) {
         .attr("r", 3)
         .classed("clickable", true)
         .on("mouseover", function(d) {
-            console.log(d[2]);
+            //console.log(d[2]);
         });
     }
 
@@ -139,4 +177,23 @@ function plotPCA(data) {
     svgSel.append("g")
     .attr("transform", "translate(50, 0)")
     .call(yAxis);
+}
+
+function calculatePCA(uids) {
+    if(uids.length > 0) {
+        $.ajax({
+            url: "/calculatepca",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(uids),
+            success: function(d) {
+                if(d.status == 'ok') {
+                    plotPCA(d.data);
+                } else {
+                    console.log(d.status);
+                }
+            }
+        });
+    }
 }
