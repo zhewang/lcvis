@@ -1,6 +1,9 @@
+import json
+import numpy as np
+import pca
+
 from flask import Flask, request, jsonify, render_template, url_for
 
-import process_object as po
 
 app = Flask(__name__)
 
@@ -30,8 +33,54 @@ def fastpca():
 def calculatepca():
     uids = request.get_json()
     # TODO: calculate pca
-    pca_result = {'data':[[1,2, 3], [2, 1, 6]]}
-    return jsonify(pca_result)
+    idlist, matrix, status = get_data_by_id(uids)
+    pca_result = {}
+    if status == 'ok':
+        pca_result = pca.calculate(idlist, matrix)
+    return jsonify({'status':status, 'data':pca_result})
+
+
+def load_lc_data():
+    lcdata = {}
+    surveys = json.load(open("./static/data/list.json"))['surveys']
+    for s in surveys:
+        path = "./static/data/lightcurves/{}/fit.json".format(s)
+        data = json.load(open(path))
+        for objid in data['data']:
+            lcdata[objid] = data['data'][objid]
+    return lcdata
+
+def get_data_by_id(ids, band='V'):
+    global LCDATA
+    ids_exist = []  # some id may not have lc data
+    matrix = []
+    status = 'ok'
+    for i in ids:
+        if band in LCDATA[i]['bands']:
+            vec = LCDATA[i][band]['mag']
+            if len(vec) > 0:
+                ids_exist.append(i)
+                matrix.append(LCDATA[i][band]['mag'])
+
+    if len(matrix) == 0:
+        return ids_exist, matrix, 'no light curve data'
+
+    c_length = len(matrix[0])
+    matrix = np.array(matrix)
+    if len(matrix) < c_length:
+        status = "numrows < numcols"
+    else:
+        try:
+            matrix.shape = (len(matrix), c_length)
+        except:
+            status = "not all rows have same numcols"
+
+    return ids_exist, matrix, status
+
+
+
+LCDATA = load_lc_data()
+
 
 
 app.run(port=8080, debug=True)

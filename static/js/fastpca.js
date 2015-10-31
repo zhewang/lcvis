@@ -188,7 +188,11 @@ function calculatePCA(uids) {
             dataType: "json",
             data: JSON.stringify(uids),
             success: function(d) {
-                plotPCA(d.data);
+                if(d.status == 'ok') {
+                    plotPCA(d.data);
+                } else {
+                    console.log(d.status);
+                }
             }
         });
     }
