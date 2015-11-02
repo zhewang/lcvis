@@ -56,11 +56,12 @@ def get_data_by_id(ids, band='V'):
     matrix = []
     status = 'ok'
     for i in ids:
-        if band in LCDATA[i]['bands']:
-            vec = LCDATA[i][band]['mag']
-            if len(vec) > 0:
-                ids_exist.append(i)
-                matrix.append(LCDATA[i][band]['mag'])
+        if i in LCDATA:
+            if band in LCDATA[i]['bands']:
+                vec = LCDATA[i][band]['mag']
+                if len(vec) > 0:
+                    ids_exist.append(i)
+                    matrix.append(LCDATA[i][band]['mag'])
 
     if len(matrix) == 0:
         return ids_exist, matrix, 'no light curve data'

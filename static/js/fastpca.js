@@ -51,6 +51,37 @@ function plotRaDec(data_dict) {
         .attr("width", plotWidth)
         .attr("height", plotHeight);
 
+    // Scatter plot
+    var setDotColors = function (sel) {
+        sel.attr("fill", 'black')
+        .attr("fill-opacity", 0.15)
+        .attr("stroke", "none")
+        .attr("cx", function(d) {
+            return xScale(d.ra);
+        })
+        .attr("cy", function(d) {
+            return yScale(d.dec);
+        })
+        .attr("r", 3)
+        .classed("clickable", true)
+        .on("mouseover", function(d) {
+            //console.log(d.uid);
+        });
+    };
+
+    var circleSel = svgSel.selectAll("circle").data(data).enter()
+        .append("circle")
+        .classed("clickable", true)
+        .call(setDotColors);
+
+    svgSel.append("g")
+    .attr("transform", "translate(0, " + (plotHeight - 30).toString() + ")")
+    .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+    .attr("transform", "translate(50, 0)")
+    .call(yAxis);
 
     // Brush
     var brush = svgSel.append("g")
@@ -84,39 +115,6 @@ function plotRaDec(data_dict) {
             calculatePCA(uids);
         }
     };
-
-    // Scatter plot
-    var setDotColors = function (sel) {
-        sel.attr("fill", 'black')
-        .attr("fill-opacity", 0.15)
-        .attr("stroke", "none")
-        .attr("cx", function(d) {
-            return xScale(d.ra);
-        })
-        .attr("cy", function(d) {
-            return yScale(d.dec);
-        })
-        .attr("r", 3)
-        .classed("clickable", true)
-        .on("mouseover", function(d) {
-            //console.log(d.uid);
-        });
-    };
-
-    var circleSel = svgSel.selectAll("circle").data(data).enter()
-        .append("circle")
-        .classed("clickable", true)
-        .call(setDotColors);
-
-    svgSel.append("g")
-    .attr("transform", "translate(0, " + (plotHeight - 30).toString() + ")")
-    .call(xAxis);
-
-    yAxis.orient("left");
-    svgSel.append("g")
-    .attr("transform", "translate(50, 0)")
-    .call(yAxis);
-
 
     // plot PCA over all objs at first
     uids = [];
