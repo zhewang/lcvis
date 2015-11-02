@@ -116,6 +116,15 @@ function plotRaDec(data_dict) {
     svgSel.append("g")
     .attr("transform", "translate(50, 0)")
     .call(yAxis);
+
+
+    // plot PCA over all objs at first
+    uids = [];
+    for(var key in OBJS) {
+        uids.push(OBJS[key].uid);
+    }
+    calculatePCA(uids);
+
 }
 
 
