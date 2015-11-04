@@ -30,7 +30,24 @@ d3.json(PATH+"list.json", function(json) {
 
 function plotPeriodHist(data) {
     // divide data into bins
+    var pExtent = d3.extent(data, function(row) {
+        return Number(row.P);
+    });
+    var binCount = 10;
+    // {'count': 10, 'data':[[],[],[],...]}
+    var binData = new Array(binCount);
+    for(var i = 0 ; i < binCount; i ++) {
+        binData[i] = [];
+    }
 
+    var step = (pExtent[1]-pExtent[0])/binCount;
+    for(var i = 0; i < data.length; i ++) {
+        var index = Math.floor((data[i].P-pExtent[0])/step);
+        if(index >= binCount) {
+            index = binCount-1;
+        }
+        binData[index].push(data[i]);
+    }
 
     // plot histogram
 }
