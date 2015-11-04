@@ -6,7 +6,13 @@ d3.json(PATH+"list.json", function(json) {
 
     var plotAfterLoadingFinished = function (count) {
         if(count == json.surveys.length) {
-            plotRaDec(OBJS);
+            data = [];
+            for(var key in OBJS) {
+                data.push(OBJS[key]);
+            }
+
+            plotRaDec(data);
+            plotPeriodHist(data);
         }
     };
 
@@ -22,13 +28,15 @@ d3.json(PATH+"list.json", function(json) {
     }
 });
 
+function plotPeriodHist(data) {
+    // divide data into bins
 
-function plotRaDec(data_dict) {
-    data = [];
-    for(var key in data_dict) {
-        data.push(data_dict[key]);
-    }
 
+    // plot histogram
+}
+
+
+function plotRaDec(data) {
     var xExtent = d3.extent(data, function(row) {
         return Number(row.ra);
     });
