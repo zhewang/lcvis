@@ -205,6 +205,9 @@ function plotRaDec(data) {
 
 
 function plotPCA(data) {
+    var plotWidth = 500;
+    var plotHeight = 500;
+
     var xExtent = d3.extent(data, function(row) {
         return Number(row[0]);
     });
@@ -212,8 +215,11 @@ function plotPCA(data) {
         return Number(row[1]);
     });
 
-    var plotWidth = 500;
-    var plotHeight = 500;
+    var xMax = d3.max(xExtent, function(d){return Math.abs(d);})
+    var yMax = d3.max(yExtent, function(d){return Math.abs(d);})
+
+    xExtent = [-xMax, xMax];
+    yExtent = [-yMax, yMax];
 
     xExtent = [-10, 10];
     yExtent = [-10, 10];
