@@ -104,6 +104,12 @@ function plotHist(original_data, attr) {
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
+    var yAxis = d3.svg.axis().scale(y).ticks(10);
+
+    yAxis.orient("left");
+    svg.append("g")
+    .attr("transform", "translate("+ margin.left +", 0)")
+    .call(yAxis);
 }
 
 function plotRaDec(data) {
