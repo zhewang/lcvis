@@ -8,6 +8,9 @@
         <script src="{{ url_for('static', filename='js/errorPlot.js') }}"></script>
 
         <style>
+        body {
+            font: 10px sans-serif;
+        }
         path.domain {
             fill: none;
             stroke-width: 2px;
@@ -29,12 +32,26 @@
             stroke: #fff;
             shape-rendering: crispEdges;
         }
-        
+
+        .bar rect {
+            fill: steelblue;
+            shape-rendering: crispEdges;
+        }
+
+        .bar text {
+            fill: #fff;
+        }
+
+        .axis path, .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }        
         </style>
     </head>
     <body>
         <div class="left" id="ra_dec_scatter"></div>
         <div class="left" id="plotPCA"></div>
-        <div class="left" id="period_histogram"></div>
+        <div class="left" id="histogram"></div>
     </body>
 </html>
