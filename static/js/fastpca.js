@@ -30,12 +30,12 @@ d3.json(PATH+"list.json", function(json) {
     }
 });
 
-function plotHist(data, attr) {
+function plotHist(original_data, attr) {
 
     var values = [];
-    for(var i = 0 ; i < data.length; i ++) {
-        if(!isNaN(data[i][attr]))
-            values.push(data[i][attr]);
+    for(var i = 0 ; i < original_data.length; i ++) {
+        if(!isNaN(original_data[i][attr]))
+            values.push(original_data[i][attr]);
     }
 
     // A formatter for counts.
@@ -87,6 +87,17 @@ function plotHist(data, attr) {
     .attr("x", (x(data[0].dx)-x(0)) / 2)
     .attr("text-anchor", "middle")
     .text(function(d) { return formatCount(d.y); });
+
+    bar.on("mouseover", function(d){
+        var extent = [d.x, d.x+d.dx];
+        var uids = [];
+        for(var i = 0 ; i < original_data.length; i ++) {
+            if(original_data[i][attr] >= extent[0] &&
+               original_data[i][attr] < extent[1])
+                uids.push(original_data[i].uid);
+        }
+        calculatePCA(uids);
+    })
 
     svg.append("g")
     .attr("class", "x axis")
