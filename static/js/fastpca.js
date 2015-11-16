@@ -39,6 +39,10 @@ d3.json(PATH+"list.json", function(json) {
 
 function plotHist(original_data, attr) {
 
+    if(original_data.length <= 0) {
+        return;
+    }
+
     var values = [];
     for(var i = 0 ; i < original_data.length; i ++) {
         if(!isNaN(original_data[i][attr]))
@@ -70,9 +74,11 @@ function plotHist(original_data, attr) {
     .scale(x)
     .orient("bottom");
 
+    d3.select("#histogram").select("#"+attr+"_hist").remove();
     var svg = d3.select("#histogram").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .attr("id", attr+"_hist")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -107,7 +113,8 @@ function plotHist(original_data, attr) {
             }
         }
         calculatePCA(uids);
-        plotRaDec(selectedData);
+        //TODO: highlight selectedData
+        //plotRaDec(selectedData);
 
     })
 
@@ -120,7 +127,8 @@ function plotHist(original_data, attr) {
 
     yAxis.orient("left");
     svg.append("g")
-    .attr("transform", "translate("+ margin.left +", 0)")
+    //.attr("transform", "translate("+ margin.left +", 0)")
+    .attr("transform", "translate(0, 0)")
     .call(yAxis);
 }
 
@@ -191,15 +199,19 @@ function plotRaDec(data) {
     function brushmove() {
         var extent = d3.event.target.extent();
         var uids = [];
+        var selectedData = [];
         for(var i = 0; i < data.length; i ++) {
             if(data[i].ra >= extent[0][0] &&
                data[i].dec >= extent[0][1] &&
                data[i].ra <= extent[1][0] &&
                data[i].dec <= extent[1][1]) {
                 uids.push(data[i].uid);
+                selectedData.push(data[i]);
             }
         }
         calculatePCA(uids);
+        plotHist(selectedData, "P");
+        plotHist(selectedData, "I");
     };
 
     function brushend() {
