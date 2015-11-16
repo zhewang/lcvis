@@ -15,6 +15,13 @@ d3.json(PATH+"list.json", function(json) {
             //plotPeriodHist(data);
             plotHist(data, 'P');
             plotHist(data, 'I');
+
+            // plot PCA over all objs at first
+            uids = [];
+            for(var key in OBJS) {
+                uids.push(OBJS[key].uid);
+            }
+            calculatePCA(uids);
         }
     };
 
@@ -91,12 +98,17 @@ function plotHist(original_data, attr) {
     bar.on("mouseover", function(d){
         var extent = [d.x, d.x+d.dx];
         var uids = [];
+        var selectedData = [];
         for(var i = 0 ; i < original_data.length; i ++) {
             if(original_data[i][attr] >= extent[0] &&
-               original_data[i][attr] < extent[1])
+               original_data[i][attr] < extent[1]) {
                 uids.push(original_data[i].uid);
+                selectedData.push(original_data[i]);
+            }
         }
         calculatePCA(uids);
+        plotRaDec(selectedData);
+
     })
 
     svg.append("g")
@@ -179,12 +191,12 @@ function plotRaDec(data) {
     function brushmove() {
         var extent = d3.event.target.extent();
         var uids = [];
-        for(var key in OBJS) {
-            if(OBJS[key].ra >= extent[0][0] &&
-               OBJS[key].dec >= extent[0][1] &&
-               OBJS[key].ra <= extent[1][0] &&
-               OBJS[key].dec <= extent[1][1]) {
-                uids.push(OBJS[key].uid);
+        for(var i = 0; i < data.length; i ++) {
+            if(data[i].ra >= extent[0][0] &&
+               data[i].dec >= extent[0][1] &&
+               data[i].ra <= extent[1][0] &&
+               data[i].dec <= extent[1][1]) {
+                uids.push(data[i].uid);
             }
         }
         calculatePCA(uids);
@@ -199,13 +211,6 @@ function plotRaDec(data) {
             calculatePCA(uids);
         }
     };
-
-    // plot PCA over all objs at first
-    uids = [];
-    for(var key in OBJS) {
-        uids.push(OBJS[key].uid);
-    }
-    calculatePCA(uids);
 
 }
 
