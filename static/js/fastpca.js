@@ -1,4 +1,4 @@
-var PATH = "/static/data/";
+var PATH = "/static/data_ogle/";
 var OBJS = [];
 
 d3.json(PATH+"list.json", function(json) {
