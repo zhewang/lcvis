@@ -356,6 +356,29 @@ def draw(a_pnts, b_pnts, filename):
 	pylab.savefig(filename)
 	pylab.clf()
 
+def align(data, target):
+        # TODO: use heatmap of data and target
+	# TUNE ME:  threshold cost difference between iterations to determine if converged
+	costThresh = 0.004
+
+	# TUNE ME:   minimum match distance before point is discarded from consideration
+	minMatchDist = 2.0
+
+	# plot the best fit at each iteration of the algorithm?
+	plotIteration = False
+
+	# initial guess for x, y, theta parameters
+	offset = [0.0,0.0,-math.pi/4]
+
+	# run generalized ICP (a plot is made for each iteration of the algorithm)
+	#offset = gen_ICP(offset, data, target, costThresh, minMatchDist, plotIteration)
+
+	#data_trans = []
+	#for p in data:
+		#data_trans.append(dispPoint(p, offset))
+
+        #return data_trans
+        return data
 
 if __name__ == '__main__':
 

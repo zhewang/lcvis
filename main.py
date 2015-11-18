@@ -31,12 +31,14 @@ def fastpca():
 
 @app.route('/calculatepca', methods=['post'])
 def calculatepca():
+    global LAST_PCA
     uids = request.get_json()
     # TODO: calculate pca
     idlist, matrix, status = get_data_by_id(uids)
     pca_result = {}
     if status == 'ok':
-        pca_result = pca.calculate(idlist, matrix)
+        pca_result = pca.calculate(idlist, matrix, LAST_PCA)
+        LAST_PCA = pca_result
     return jsonify({'status':status, 'data':pca_result})
 
 
@@ -81,6 +83,7 @@ def get_data_by_id(ids, band='V'):
 
 
 LCDATA = load_lc_data()
+LAST_PCA = None
 
 
 

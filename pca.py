@@ -9,13 +9,8 @@ def calculate(ids, matrix, target=None):
         data.append([round(results.project(row)[0],6),
                 round(results.project(row)[1],6)])
     if target is not None:
-        data = alignment(data, target)
+        data = icp.align(data, target)
 
     for obj_id, row in zip(ids, data):
         row.append(obj_id)
     return data
-
-
-def alignment(data, target):
-    pass
-
