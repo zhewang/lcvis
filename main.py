@@ -42,9 +42,9 @@ def calculatepca():
 
 def load_lc_data():
     lcdata = {}
-    surveys = json.load(open("./static/data/list.json"))['surveys']
+    surveys = json.load(open("./static/data_ogle/list.json"))['surveys']
     for s in surveys:
-        path = "./static/data/lightcurves/{}/fit.json".format(s)
+        path = "./static/data_ogle/lightcurves/{}/fit.json".format(s)
         data = json.load(open(path))
         for objid in data['data']:
             lcdata[objid] = data['data'][objid]
