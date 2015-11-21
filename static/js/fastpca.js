@@ -101,7 +101,7 @@ function plotHist(original_data, attr) {
     .attr("text-anchor", "middle")
     .text(function(d) { return formatCount(d.y); });
 
-    bar.on("mouseover", function(d){
+    bar.on("mouseenter", function(d){
         var extent = [d.x, d.x+d.dx];
         var uids = [];
         var selectedData = [];

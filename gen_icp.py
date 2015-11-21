@@ -65,12 +65,12 @@ def dispPoint(p, offset):
 	p_off = [temp[0,0],temp[1,0]]
 
 
-	R = numpy.matrix([	[math.cos(theta), -math.sin(theta)],
-		[math.sin(theta), math.cos(theta)] ])
+	#R = numpy.matrix([	[math.cos(theta), -math.sin(theta)],
+		#[math.sin(theta), math.cos(theta)] ])
 
-	Cv = p[2]
-	Ca = R * Cv * numpy.transpose(R)
-	p_off.append(Ca)
+	#Cv = p[2]
+	#Ca = R * Cv * numpy.transpose(R)
+	#p_off.append(Ca)
 
 	return p_off
 
@@ -356,29 +356,55 @@ def draw(a_pnts, b_pnts, filename):
 	pylab.savefig(filename)
 	pylab.clf()
 
+def histogramedPoints(data):
+        #data = [[0,0],[1,0],[2,0]]
+
+        bins = 100
+        xmin = -5
+        xmax = 5
+        step = (xmax-xmin)*1.0 / bins
+        x_edges = [ xmin+i*step for i in range(bins)]
+        heatmap = numpy.zeros((bins,bins),dtype ='int')
+
+        for p in data:
+            i = (p[0]-xmin)/step
+            j = (p[1]-xmin)/step
+            if i < bins and i >=0 and j < bins and j>= 0:
+                heatmap[i][j] += 1
+
+        hist_points = []
+        for i in range(bins):
+            for j in range(bins):
+                if heatmap[i][j] > 0.0:
+                    hist_points.append([round(x_edges[i],3),
+                                        round(x_edges[j],3)])
+
+        return hist_points
+
+
 def align(data, target):
-        # TODO: use heatmap of data and target
-	# TUNE ME:  threshold cost difference between iterations to determine if converged
-	costThresh = 0.004
+    return histogramedPoints(data)
+        #data = histogramedPoints(data)
+        #target = histogramedPoints(target)
+	## TUNE ME:  threshold cost difference between iterations to determine if converged
+	#costThresh = 0.04
 
-	# TUNE ME:   minimum match distance before point is discarded from consideration
-	minMatchDist = 2.0
+	## TUNE ME:   minimum match distance before point is discarded from consideration
+	#minMatchDist = 2.0
 
-	# plot the best fit at each iteration of the algorithm?
-	plotIteration = False
+	## plot the best fit at each iteration of the algorithm?
+	#plotIteration = False
 
-	# initial guess for x, y, theta parameters
-	offset = [0.0,0.0,-math.pi/4]
+	#offset = [0.0,0.0,-math.pi/4]
 
-	# run generalized ICP (a plot is made for each iteration of the algorithm)
-	#offset = gen_ICP(offset, data, target, costThresh, minMatchDist, plotIteration)
+	#offset = gen_ICP(offset, data, target,
+                         #costThresh, minMatchDist, plotIteration)
 
 	#data_trans = []
 	#for p in data:
-		#data_trans.append(dispPoint(p, offset))
+            #data_trans.append(dispPoint(p, offset))
 
         #return data_trans
-        return data
 
 if __name__ == '__main__':
 

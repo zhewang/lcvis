@@ -83,7 +83,7 @@ def get_data_by_id(ids, band='V'):
 
 
 LCDATA = load_lc_data()
-LAST_PCA = None
+LAST_PCA = []
 
 
 
