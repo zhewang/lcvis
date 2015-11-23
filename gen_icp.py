@@ -356,7 +356,7 @@ def draw(a_pnts, b_pnts, filename):
 	pylab.savefig(filename)
 	pylab.clf()
 
-def histogramedPoints(data):
+def heatmappedPoints(data):
         #data = [[0,0],[1,0],[2,0]]
 
         bins = 100
@@ -383,28 +383,28 @@ def histogramedPoints(data):
 
 
 def align(data, target):
-    return histogramedPoints(data)
-        #data = histogramedPoints(data)
-        #target = histogramedPoints(target)
-	## TUNE ME:  threshold cost difference between iterations to determine if converged
-	#costThresh = 0.04
+    return heatmappedPoints(data)
+    #data = heatmappedPoints(data)
+    #target = heatmappedPoints(target)
+    ## TUNE ME:  threshold cost difference between iterations to determine if converged
+    #costThresh = 0.04
 
-	## TUNE ME:   minimum match distance before point is discarded from consideration
-	#minMatchDist = 2.0
+    ## TUNE ME:   minimum match distance before point is discarded from consideration
+    #minMatchDist = 2.0
 
-	## plot the best fit at each iteration of the algorithm?
-	#plotIteration = False
+    ## plot the best fit at each iteration of the algorithm?
+    #plotIteration = False
 
-	#offset = [0.0,0.0,-math.pi/4]
+    #offset = [0.0,0.0,-math.pi/4]
 
-	#offset = gen_ICP(offset, data, target,
-                         #costThresh, minMatchDist, plotIteration)
+    #offset = gen_ICP(offset, data, target,
+            #costThresh, minMatchDist, plotIteration)
 
-	#data_trans = []
-	#for p in data:
-            #data_trans.append(dispPoint(p, offset))
+    #data_trans = []
+    #for p in data:
+        #data_trans.append(dispPoint(p, offset))
 
-        #return data_trans
+    #return data_trans
 
 if __name__ == '__main__':
 

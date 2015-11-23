@@ -38,6 +38,7 @@ def calculatepca():
     if status == 'ok':
         pca_result = pca.calculate(idlist, matrix, LAST_PCA)
         LAST_PCA = pca_result
+        print(len(LAST_PCA))
     return jsonify({'status':status, 'data':pca_result})
 
 @app.route('/calculate_average_lc', methods=['post'])
