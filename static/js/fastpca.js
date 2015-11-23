@@ -323,10 +323,19 @@ function calculatePCA(uids) {
 }
 
 function calculaAverageLC(uids){
-    var data = {"mean":[13,14,15,16,17,18],
-                "sd":[3,2,1,0,5,1],
-                "phase":[0,0.1,0.3,0.5,0.8,1]};
-    plotAverageLC(data);
+    if(uids.length > 0) {
+        $.ajax({
+            url: "/calculate_average_lc",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(uids),
+            success: function(d) {
+                plotAverageLC(d);
+            }
+        });
+    }
+
 }
 
 function plotAverageLC(data){
@@ -340,10 +349,10 @@ function plotAverageLC(data){
     var data_for_extent = [];
     for(var i = 0; i < data.phase.length; i ++){
         data_mean.push({'y':data.mean[i], 'x':data.phase[i]});
-        data_upper.push({'y':data.mean[i]+data.sd[i], 'x':data.phase[i]});
-        data_lower.push({'y':data.mean[i]-data.sd[i], 'x':data.phase[i]});
-        data_for_extent.push(data.mean[i]+data.sd[i]);
-        data_for_extent.push(data.mean[i]-data.sd[i]);
+        data_upper.push({'y':data.mean[i]+data.std[i], 'x':data.phase[i]});
+        data_lower.push({'y':data.mean[i]-data.std[i], 'x':data.phase[i]});
+        data_for_extent.push(data.mean[i]+data.std[i]);
+        data_for_extent.push(data.mean[i]-data.std[i]);
     }
 
     var xExtent = [0, 1]
