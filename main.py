@@ -33,7 +33,6 @@ def fastpca():
 def calculatepca():
     global LAST_PCA
     uids = request.get_json()
-    # TODO: calculate pca
     idlist, matrix, status = get_data_by_id(uids)
     pca_result = {}
     if status == 'ok':
@@ -41,16 +40,39 @@ def calculatepca():
         LAST_PCA = pca_result
     return jsonify({'status':status, 'data':pca_result})
 
+@app.route('/calculate_average_lc', methods=['post'])
+def calculate_average_lc():
+    global LCDATA, LCPHASE
+    uids = request.get_json()
+    # TODO: band as parameter
+    band = 'V'
+
+    matrix = []
+    for i in uids:
+        if i in LCDATA:
+            if band in LCDATA[i]['bands']:
+                vec = LCDATA[i][band]['mag']
+                if len(vec) > 0: # some id may not have lc data
+                    matrix.append(LCDATA[i][band]['mag'])
+    mean = np.mean(np.array(matrix), axis=0)
+    std = np.std(np.array(matrix), axis=0)
+    return jsonify({'mean':mean.tolist(),
+                    'std':std.tolist(),
+                    'phase':LCPHASE})
+
+
 
 def load_lc_data():
     lcdata = {}
+    lcphase = [] # Assume all phase for different surveys are the same
     surveys = json.load(open("./static/data_ogle/list.json"))['surveys']
     for s in surveys:
         path = "./static/data_ogle/lightcurves/{}/fit.json".format(s)
         data = json.load(open(path))
+        lcphase = data['phase']
         for objid in data['data']:
             lcdata[objid] = data['data'][objid]
-    return lcdata
+    return lcdata, lcphase
 
 def get_data_by_id(ids, band='V'):
     global LCDATA
@@ -82,7 +104,7 @@ def get_data_by_id(ids, band='V'):
 
 
 
-LCDATA = load_lc_data()
+LCDATA, LCPHASE = load_lc_data()
 LAST_PCA = []
 
 
