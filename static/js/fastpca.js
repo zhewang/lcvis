@@ -22,6 +22,8 @@ d3.json(PATH+"list.json", function(json) {
                 uids.push(OBJS[key].uid);
             }
             calculatePCA(uids);
+            calculaAverageLC(uids);
+
         }
     };
 
@@ -54,8 +56,8 @@ function plotHist(original_data, attr) {
     var xExtent = d3.extent(values, function(d){return d;});
 
     var margin = {top: 10, right: 30, bottom: 30, left: 30},
-        width = 500 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 300 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
     .domain(xExtent)
@@ -113,6 +115,7 @@ function plotHist(original_data, attr) {
             }
         }
         calculatePCA(uids);
+        calculaAverageLC(uids);
         //TODO: highlight selectedData
         //plotRaDec(selectedData);
 
@@ -210,17 +213,24 @@ function plotRaDec(data) {
             }
         }
         calculatePCA(uids);
+        calculaAverageLC(uids);
         plotHist(selectedData, "P");
         plotHist(selectedData, "I");
     };
 
     function brushend() {
         if (d3.event.target.empty()) {
+            // TODO: optimise the speed
             var uids = [];
+            var selectedData = []
             for(var key in OBJS) {
                 uids.push(OBJS[key].uid);
+                selectedData.push(OBJS[key]);
             }
             calculatePCA(uids);
+            calculaAverageLC(uids);
+            plotHist(selectedData, "P");
+            plotHist(selectedData, "I");
         }
     };
 
@@ -310,4 +320,81 @@ function calculatePCA(uids) {
             }
         });
     }
+}
+
+function calculaAverageLC(uids){
+    var data = {"mean":[13,14,15,16,17,18],
+                "sd":[3,2,1,0,5,1],
+                "phase":[0,0.1,0.3,0.5,0.8,1]};
+    plotAverageLC(data);
+}
+
+function plotAverageLC(data){
+
+    var plotWidth = 500;
+    var plotHeight = 300;
+
+    var data_mean = [];
+    var data_upper = [];
+    var data_lower = [];
+    var data_for_extent = [];
+    for(var i = 0; i < data.phase.length; i ++){
+        data_mean.push({'y':data.mean[i], 'x':data.phase[i]});
+        data_upper.push({'y':data.mean[i]+data.sd[i], 'x':data.phase[i]});
+        data_lower.push({'y':data.mean[i]-data.sd[i], 'x':data.phase[i]});
+        data_for_extent.push(data.mean[i]+data.sd[i]);
+        data_for_extent.push(data.mean[i]-data.sd[i]);
+    }
+
+    var xExtent = [0, 1]
+    var yExtent = d3.extent(data_for_extent, function(row) {
+        return Number(row);
+    });
+
+    var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth - 30]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight - 30, 30]);
+
+    var xAxis = d3.svg.axis().scale(xScale).ticks(5);
+    var yAxis = d3.svg.axis().scale(yScale).ticks(5);
+
+    d3.select("#lightcurve").select('svg').remove();
+    var svgSel = d3.select("#lightcurve")
+        .append("svg")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight);
+
+    svgSel.selectAll("path").remove();
+
+
+    var valueline = d3.svg.line()
+        .x(function(d) { return xScale(d.x); })
+        .y(function(d) { return yScale(d.y); })
+        .interpolate("basis");
+
+    svgSel.append("path")
+        .attr("d", valueline(data_mean))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+
+    svgSel.append("path")
+        .attr("d", valueline(data_upper))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+
+    svgSel.append("path")
+        .attr("d", valueline(data_lower))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+
+    svgSel.append("g")
+    .attr("transform", "translate(0, " + (plotHeight - 30).toString() + ")")
+    .call(xAxis);
+
+    yAxis.orient("left");
+    svgSel.append("g")
+    .attr("transform", "translate(50, 0)")
+    .call(yAxis);
 }
