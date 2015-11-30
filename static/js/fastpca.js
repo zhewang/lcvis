@@ -267,8 +267,6 @@ function plotRaDecHeatmap(data) {
     }
 
     // SVG
-    //var plotWidth = 500;
-    //var plotHeight = 500;
     var margin = { top: 0, right: 0, bottom: 30, left: 30 };
     var plotWidth = 500 - margin.left - margin.right;
     var plotHeight = 500 - margin.top - margin.bottom;
@@ -297,6 +295,50 @@ function plotRaDecHeatmap(data) {
     svg.append("g")
     .attr("transform", "translate("+margin.left+", 0)")
     .call(yAxis);
+
+    // Brush
+    var brush = svg.append("g")
+        .attr("class", "brush")
+        .call(d3.svg.brush()
+        .x(xScale)
+        .y(yScale)
+        .on("brush", brushmove)
+        .on("brushend", brushend));
+
+    function brushmove() {
+        var extent = d3.event.target.extent();
+        var uids = [];
+        var selectedData = [];
+        for(var i = 0; i < data.length; i ++) {
+            if(data[i].ra >= extent[0][0] &&
+               data[i].dec >= extent[0][1] &&
+               data[i].ra <= extent[1][0] &&
+               data[i].dec <= extent[1][1]) {
+                uids.push(data[i].uid);
+                selectedData.push(data[i]);
+            }
+        }
+        calculatePCA(uids);
+        calculaAverageLC(uids);
+        plotHist(selectedData, "P");
+        plotHist(selectedData, "I");
+    };
+
+    function brushend() {
+        if (d3.event.target.empty()) {
+            // TODO: optimise the speed
+            var uids = [];
+            var selectedData = []
+            for(var key in OBJS) {
+                uids.push(OBJS[key].uid);
+                selectedData.push(OBJS[key]);
+            }
+            calculatePCA(uids);
+            calculaAverageLC(uids);
+            plotHist(selectedData, "P");
+            plotHist(selectedData, "I");
+        }
+    };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
