@@ -305,27 +305,17 @@ function plotPCA(data) {
     .call(yAxis);
 }
 
-function plotPCAHeatmap(data) {
-    var plotWidth = 500;
-    var plotHeight = 500;
-
+function plotHeatmap(data, svgSel, plotWidth, plotHeight){
     var data_flatten = []
     for(var i = 0; i < data.length; i ++){
         data_flatten = data_flatten.concat(data[i]);
     }
-    console.log(data_flatten.length);
 
     var colors = ["#ffffff"/*"#ffffd9"*/,"#edf8b1","#c7e9b4","#7fcdbb",
                   "#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
     var colorScale = d3.scale.quantile()
         .domain([0, 9 - 1, d3.max(data_flatten, function (d) { return d; })])
         .range(colors);
-
-    d3.select("#plotPCA").select('svg').remove();
-    var svgSel = d3.select("#plotPCA")
-        .append("svg")
-        .attr("width", plotWidth)
-        .attr("height", plotHeight);
 
     var gridSize = Math.floor(plotWidth / data[0].length);
 
@@ -352,6 +342,17 @@ function plotPCAHeatmap(data) {
     var circleSel = svgSel.selectAll("rect").data(data_flatten).enter()
         .append("rect")
         .call(setDotColors);
+}
+
+function plotPCAHeatmap(data) {
+    var plotWidth = 500;
+    var plotHeight = 500;
+    d3.select("#plotPCA").select('svg').remove();
+    var svgSel = d3.select("#plotPCA")
+        .append("svg")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight);
+    plotHeatmap(data, svgSel, plotWidth, plotHeight);
 }
 
 function calculatePCA(uids) {
