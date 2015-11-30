@@ -11,7 +11,7 @@ d3.json(PATH+"list.json", function(json) {
                 data.push(OBJS[key]);
             }
 
-            plotRaDec(data);
+            plotRaDecHeatmap(data);
             //plotPeriodHist(data);
             plotHist(data, 'P');
             plotHist(data, 'I');
@@ -236,6 +236,69 @@ function plotRaDec(data) {
 
 }
 
+function plotRaDecHeatmap(data) {
+    // Prepare data for heatmap
+    var xExtent = d3.extent(data, function(row) {
+        return Number(row.ra);
+    });
+    var yExtent = d3.extent(data, function(row) {
+        return Number(row.dec);
+    });
+
+    var heatmapSize = 50;
+
+    var xStep = (xExtent[1]-xExtent[0]) / heatmapSize;
+    var yStep = (yExtent[1]-yExtent[0]) / heatmapSize;
+
+    var data_heatmap = new Array(heatmapSize);
+    for(var i = 0; i < heatmapSize; i ++){
+            data_heatmap[i] = new Array(heatmapSize);
+            for(var j = 0; j < heatmapSize; j ++) {
+                data_heatmap[i][j] = 0;
+            }
+    }
+
+    for(var i = 0; i < data.length; i ++){
+        var x = Math.floor((data[i].ra - xExtent[0]) / xStep);
+        var y = Math.floor((data[i].dec - yExtent[0]) / yStep);
+        if(x == 50) {x = 49;}
+        if(y == 50) {y = 49;}
+        data_heatmap[x][y] += 1;
+    }
+
+    // SVG
+    //var plotWidth = 500;
+    //var plotHeight = 500;
+    var margin = { top: 0, right: 0, bottom: 30, left: 30 };
+    var plotWidth = 500 - margin.left - margin.right;
+    var plotHeight = 500 - margin.top - margin.bottom;
+
+    d3.select("#ra_dec_scatter").select('svg').remove();
+    var svgSel = d3.select("#ra_dec_scatter")
+        .append("svg")
+        .attr("width", plotWidth+margin.left+margin.right)
+        .attr("height", plotHeight+margin.top+margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.bottom+ ")");
+    plotHeatmap(data_heatmap, svgSel, plotWidth, plotHeight);
+
+    //var xScale = d3.scale.linear().domain(xExtent).range([margin.left, plotWidth+margin.left]);
+    //var yScale = d3.scale.linear().domain(yExtent).range([plotHeight, 0]);
+
+    //var xAxis = d3.svg.axis().scale(xScale).ticks(5);
+    //var yAxis = d3.svg.axis().scale(yScale).ticks(5);
+
+    //var svg = d3.select("#ra_dec_scatter").select('svg');
+    //svg.append("g")
+    //.attr("transform", "translate(0, "+(plotHeight-margin.bottom).toString()+")")
+    //.call(xAxis);
+
+    //yAxis.orient("left");
+    //svg.append("g")
+    //.attr("transform", "translate("+margin.left+", 0)")
+    //.call(yAxis);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Scatter Plot for PCA
 ////////////////////////////////////////////////////////////////////////////////
@@ -345,13 +408,17 @@ function plotHeatmap(data, svgSel, plotWidth, plotHeight){
 }
 
 function plotPCAHeatmap(data) {
-    var plotWidth = 500;
-    var plotHeight = 500;
+    var margin = { top: 0, right: 0, bottom: 30, left: 30 };
+    var plotWidth = 500 - margin.left - margin.right;
+    var plotHeight = 500 - margin.top - margin.bottom;
+
     d3.select("#plotPCA").select('svg').remove();
     var svgSel = d3.select("#plotPCA")
         .append("svg")
-        .attr("width", plotWidth)
-        .attr("height", plotHeight);
+        .attr("width", plotWidth+margin.left+margin.right)
+        .attr("height", plotHeight+margin.top+margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.bottom+ ")");
     plotHeatmap(data, svgSel, plotWidth, plotHeight);
 }
 
