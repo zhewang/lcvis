@@ -382,7 +382,7 @@ def heatmappedPoints(data):
         return hist_points
 
 def heatmap(data):
-    bins = 100
+    bins = 50
     xmin = -5
     xmax = 5
     step = (xmax-xmin)*1.0 / bins
@@ -437,24 +437,25 @@ def alignFlip(data, target):
             closest_m = m
 
     # return points
-    bins = 100
-    xmin = -5
-    xmax = 5
-    step = (xmax-xmin)*1.0 / bins
-    x_edges = [ xmin+i*step for i in range(bins)]
-    hist_points = []
-    for i in range(bins):
-        for j in range(bins):
-            if closest_m[i][j] > 0.0:
-                hist_points.append([round(x_edges[i],3),
-                                    round(x_edges[j],3)])
+    #bins = 100
+    #xmin = -5
+    #xmax = 5
+    #step = (xmax-xmin)*1.0 / bins
+    #x_edges = [ xmin+i*step for i in range(bins)]
+    #hist_points = []
+    #for i in range(bins):
+        #for j in range(bins):
+            #if closest_m[i][j] > 0.0:
+                #hist_points.append([round(x_edges[i],3),
+                                    #round(x_edges[j],3)])
+    result = closest_m.tolist()
 
-    return hist_points
+    return closest_m
 
 
 def align(data, target):
     if len(target) == 0:
-        return heatmappedPoints(data)
+        return heatmap(data)
     else:
         return alignFlip(data, target)
     #return heatmappedPoints(data)

@@ -12,6 +12,6 @@ def calculate(ids, matrix, target=None):
     #target = []
     data = icp.align(data, target)
 
-    for obj_id, row in zip(ids, data):
-        row.append(obj_id)
-    return data
+    #for obj_id, row in zip(ids, data):
+        #row.append(obj_id)
+    return data.tolist()
