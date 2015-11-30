@@ -282,21 +282,21 @@ function plotRaDecHeatmap(data) {
         .attr("transform", "translate(" + margin.left + "," + margin.bottom+ ")");
     plotHeatmap(data_heatmap, svgSel, plotWidth, plotHeight);
 
-    //var xScale = d3.scale.linear().domain(xExtent).range([margin.left, plotWidth+margin.left]);
-    //var yScale = d3.scale.linear().domain(yExtent).range([plotHeight, 0]);
+    var xScale = d3.scale.linear().domain(xExtent).range([margin.left, plotWidth+10]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight+10, margin.bottom]);
 
-    //var xAxis = d3.svg.axis().scale(xScale).ticks(5);
-    //var yAxis = d3.svg.axis().scale(yScale).ticks(5);
+    var xAxis = d3.svg.axis().scale(xScale).ticks(10);
+    var yAxis = d3.svg.axis().scale(yScale).ticks(10);
 
-    //var svg = d3.select("#ra_dec_scatter").select('svg');
-    //svg.append("g")
-    //.attr("transform", "translate(0, "+(plotHeight-margin.bottom).toString()+")")
-    //.call(xAxis);
+    var svg = d3.select("#ra_dec_scatter").select('svg');
+    svg.append("g")
+    .attr("transform", "translate(0, "+(plotHeight+10).toString()+")")
+    .call(xAxis);
 
-    //yAxis.orient("left");
-    //svg.append("g")
-    //.attr("transform", "translate("+margin.left+", 0)")
-    //.call(yAxis);
+    yAxis.orient("left");
+    svg.append("g")
+    .attr("transform", "translate("+margin.left+", 0)")
+    .call(yAxis);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -386,13 +386,13 @@ function plotHeatmap(data, svgSel, plotWidth, plotHeight){
         sel.attr("fill", function(d) {
             return colorScale(d);
         })
-        .attr("stroke", "#bdbdbd")
+        .attr("stroke", "#f0f0f0")
         .attr("x", function(d, i) {
-            var x = (i%data[0].length-1)*gridSize;
+            var x = (i%data[0].length)*gridSize;
             return x;
         })
         .attr("y", function(d, i) {
-            var y = (Math.floor(i/data[0].length)-1)*gridSize;
+            var y = (Math.floor(i/data[0].length))*gridSize;
             return y;
         })
         .attr("width", gridSize)
