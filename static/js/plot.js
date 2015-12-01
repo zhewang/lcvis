@@ -3,6 +3,7 @@ var pca_data;
 var plots = {};
 
 var path = "/static/data/";
+var data_dir = "/static/data_ogle/"
 // var path = "data_10/";
 
 function changePlot(newPlotId) {
@@ -33,15 +34,14 @@ d3.selection.prototype.moveToFront = function() {
   });
 };
 
-d3.csv(path + "object_list.csv", function(csv) {
-  for (var i = 0; i < csv.length; ++i) {
-    csv[i].id = Number(csv[i].id);
-    csv[i].period = Number(csv[i].period);
-    objs[csv[i].id] = {
-      period: Number(csv[i].period),
-      index: i
-    };
-  }
+d3.json(data_dir+ "/linear_meta.json", function(data) {
+    var meta_data = data['data']
+    for(var i = 0; i < meta_data.length; i ++){
+        objs[meta_data[i].uid] = {'period': Number(meta_data[i].P),
+                                  'index': i,
+                                  'attrs': meta_data[i]};
+    }
+
   var select = d3.select("#selection").append("select");
 
   select.on("change", function() {
@@ -52,20 +52,20 @@ d3.csv(path + "object_list.csv", function(csv) {
   });
 
   select.selectAll("option")
-    .data(csv)
+    .data(meta_data)
     .enter()
     .append("option")
     .attr("id", function(d) {
-      return d.id;
+      return d.uid;
     })
     .attr("value", function(d) {
-      return d.period;
+      return d.P;
     })
     .text(function(d) {
-      if (d.period > 0)
-        return d.id;
+      if (d.P> 0)
+        return d.uid;
       else
-        return d.id + " *";
+        return d.uid + " *";
     });
 
     // load attributes
@@ -82,7 +82,7 @@ d3.csv(path + "object_list.csv", function(csv) {
             }
 
             // plot the first object when starting
-            plotObject(csv[0].id, csv[0].period);
+            plotObject(meta_data[0].uid, meta_data[0].P);
 
             // plot SDSS color-color
             plotU_G();
