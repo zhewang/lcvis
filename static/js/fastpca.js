@@ -254,7 +254,7 @@ function plotRaDecHeatmap(data) {
     for(var i = 0; i < heatmapSize; i ++){
             data_heatmap[i] = new Array(heatmapSize);
             for(var j = 0; j < heatmapSize; j ++) {
-                data_heatmap[i][j] = 0;
+                data_heatmap[i][j] = {"count":0, "uids":[]};
             }
     }
 
@@ -263,7 +263,8 @@ function plotRaDecHeatmap(data) {
         var y = Math.floor((data[i].dec - yExtent[0]) / yStep);
         if(x == 50) {x = 49;}
         if(y == 50) {y = 49;}
-        data_heatmap[x][y] += 1;
+        data_heatmap[x][y].count += 1;
+        data_heatmap[x][y].uids.push(data[i].uid);
     }
 
     // SVG
@@ -426,7 +427,7 @@ function plotHeatmap(data, svgSel, plotWidth, plotHeight){
 
     function setDotColors(sel) {
         sel.attr("fill", function(d) {
-            return colorScale(d);
+            return colorScale(d.count);
         })
         .attr("stroke", "#f0f0f0")
         .attr("x", function(d, i) {

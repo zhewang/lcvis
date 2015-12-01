@@ -382,6 +382,7 @@ def heatmappedPoints(data):
         return hist_points
 
 def heatmap(data):
+    print(data)
     bins = 50
     xmin = -5
     xmax = 5
