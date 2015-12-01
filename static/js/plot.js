@@ -7,17 +7,17 @@ var data_dir = "/static/data_ogle/"
 // var path = "data_10/";
 
 function changePlot(newPlotId) {
-  if (newPlotId < 0) {
-    console.log('unknown object');
-    //TODO only show time vs mag plot
-    return;
-  }
+    if (newPlotId < 0) {
+        console.log('unknown object');
+        //TODO only show time vs mag plot
+        return;
+    }
 
-  var period = objs[newPlotId].period;
+    var period = objs[newPlotId].period;
 
-  // plot current selection
-  plotObject(newPlotId, period);
-  document.getElementById("selection")
+    // plot current selection
+    plotObject(newPlotId, period);
+    document.getElementById("selection")
     .childNodes[0].children[objs[newPlotId].index].selected = true;
 }
 
@@ -29,43 +29,43 @@ function simpleDot(sel) {
 }
 
 d3.selection.prototype.moveToFront = function() {
-  return this.each(function() {
-    this.parentNode.appendChild(this);
-  });
+    return this.each(function() {
+        this.parentNode.appendChild(this);
+    });
 };
 
 d3.json(data_dir+ "/linear_meta.json", function(data) {
     var meta_data = data['data']
     for(var i = 0; i < meta_data.length; i ++){
         objs[meta_data[i].uid] = {'period': Number(meta_data[i].P),
-                                  'index': i,
-                                  'attrs': meta_data[i]};
+            'index': i,
+        'attrs': meta_data[i]};
     }
 
-  var select = d3.select("#selection").append("select");
+    var select = d3.select("#selection").append("select");
 
-  select.on("change", function() {
-    var id = this.options[this.selectedIndex].text.split(" ")[0];
-    var period = this.options[this.selectedIndex].value;
+    select.on("change", function() {
+        var id = this.options[this.selectedIndex].text.split(" ")[0];
+        var period = this.options[this.selectedIndex].value;
 
-    changePlot(id);
-  });
+        changePlot(id);
+    });
 
-  select.selectAll("option")
+    select.selectAll("option")
     .data(meta_data)
     .enter()
     .append("option")
     .attr("id", function(d) {
-      return d.uid;
+        return d.uid;
     })
     .attr("value", function(d) {
-      return d.P;
+        return d.P;
     })
     .text(function(d) {
-      if (d.P> 0)
-        return d.uid;
-      else
-        return d.uid + " *";
+        if (d.P> 0)
+            return d.uid;
+        else
+            return d.uid + " *";
     });
 
     // plot the first object when starting
@@ -75,11 +75,11 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
     plotU_G();
     plotR_I();
 
-  // plot the result of PCA
-  d3.json(path + "/pca.json", function(data) {
-    pca_data = data;
-    plotPCA(data);
-  });
+    // plot the result of PCA
+    d3.json(path + "/pca.json", function(data) {
+        pca_data = data;
+        plotPCA(data);
+    });
 
 });
 
