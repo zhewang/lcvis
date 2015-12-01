@@ -38,7 +38,13 @@ def calculatepca():
     if status == 'ok':
         pca_result = pca.calculate(idlist, matrix, LAST_PCA)
         LAST_PCA = pca_result
-    return jsonify({'status':status, 'data':pca_result})
+
+    final_result = [[{} for x in range(len(pca_result[0]))] for x in range(len(pca_result))]
+    for i in range(len(pca_result)):
+        for j in range(len(pca_result[0])):
+            final_result[i][j] = {'count':pca_result[i][j]}
+
+    return jsonify({'status':status, 'data':final_result})
 
 @app.route('/calculate_average_lc', methods=['post'])
 def calculate_average_lc():

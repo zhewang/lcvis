@@ -11,7 +11,7 @@ d3.json(PATH+"list.json", function(json) {
                 data.push(OBJS[key]);
             }
 
-            plotRaDec(data);
+            plotRaDecHeatmap(data);
             //plotPeriodHist(data);
             plotHist(data, 'P');
             plotHist(data, 'I');
@@ -236,7 +236,115 @@ function plotRaDec(data) {
 
 }
 
+function plotRaDecHeatmap(data) {
+    // Prepare data for heatmap
+    var xExtent = d3.extent(data, function(row) {
+        return Number(row.ra);
+    });
+    var yExtent = d3.extent(data, function(row) {
+        return Number(row.dec);
+    });
 
+    var heatmapSize = 50;
+
+    var xStep = (xExtent[1]-xExtent[0]) / heatmapSize;
+    var yStep = (yExtent[1]-yExtent[0]) / heatmapSize;
+
+    var data_heatmap = new Array(heatmapSize);
+    for(var i = 0; i < heatmapSize; i ++){
+            data_heatmap[i] = new Array(heatmapSize);
+            for(var j = 0; j < heatmapSize; j ++) {
+                data_heatmap[i][j] = {"count":0, "uids":[]};
+            }
+    }
+
+    for(var i = 0; i < data.length; i ++){
+        var c = Math.floor((data[i].ra - xExtent[0]) / xStep);
+        var r = Math.floor((data[i].dec - yExtent[0]) / yStep);
+        if(c >= heatmapSize) {c = heatmapSize-1;}
+        if(r >= heatmapSize) {r = heatmapSize-1;}
+        data_heatmap[heatmapSize-1-r][c].count += 1;
+        data_heatmap[heatmapSize-1-r][c].uids.push(data[i].uid);
+    }
+
+    // SVG
+    var margin = { top: 0, right: 0, bottom: 30, left: 30 };
+    var plotWidth = 500 - margin.left - margin.right;
+    var plotHeight = 500 - margin.top - margin.bottom;
+
+    //d3.select("#ra_dec_scatter").select('svg').remove();
+    var svgSel = d3.select("#ra_dec_scatter")
+        .append("svg")
+        .attr("width", plotWidth+margin.left+margin.right)
+        .attr("height", plotHeight+margin.top+margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.bottom+ ")");
+    plotHeatmap(data_heatmap, svgSel, plotWidth, plotHeight);
+
+    var xScale = d3.scale.linear().domain(xExtent).range([margin.left, plotWidth+10]);
+    var yScale = d3.scale.linear().domain(yExtent).range([plotHeight+10, margin.bottom]);
+
+    var xAxis = d3.svg.axis().scale(xScale).ticks(10);
+    var yAxis = d3.svg.axis().scale(yScale).ticks(10);
+
+    var svg = d3.select("#ra_dec_scatter").select('svg');
+    svg.append("g")
+    .attr("transform", "translate(0, "+(plotHeight+10).toString()+")")
+    .call(xAxis);
+
+    yAxis.orient("left");
+    svg.append("g")
+    .attr("transform", "translate("+margin.left+", 0)")
+    .call(yAxis);
+
+    // Brush
+    var brush = svg.append("g")
+        .attr("class", "brush")
+        .call(d3.svg.brush()
+        .x(xScale)
+        .y(yScale)
+        .on("brush", brushmove)
+        .on("brushend", brushend));
+
+    function brushmove() {
+        var extent = d3.event.target.extent();
+        var uids = [];
+        var selectedData = [];
+        for(var i = 0; i < data.length; i ++) {
+            if(data[i].ra >= extent[0][0] &&
+               data[i].dec >= extent[0][1] &&
+               data[i].ra <= extent[1][0] &&
+               data[i].dec <= extent[1][1]) {
+                uids.push(data[i].uid);
+                selectedData.push(data[i]);
+            }
+        }
+        calculatePCA(uids);
+        calculaAverageLC(uids);
+        plotHist(selectedData, "P");
+        plotHist(selectedData, "I");
+    };
+
+    function brushend() {
+        if (d3.event.target.empty()) {
+            // TODO: optimise the speed
+            var uids = [];
+            var selectedData = []
+            for(var key in OBJS) {
+                uids.push(OBJS[key].uid);
+                selectedData.push(OBJS[key]);
+            }
+            calculatePCA(uids);
+            calculaAverageLC(uids);
+            plotHist(selectedData, "P");
+            plotHist(selectedData, "I");
+        }
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Scatter Plot for PCA
+////////////////////////////////////////////////////////////////////////////////
 function plotPCA(data) {
     var plotWidth = 500;
     var plotHeight = 500;
@@ -303,6 +411,60 @@ function plotPCA(data) {
     .call(yAxis);
 }
 
+function plotHeatmap(data, svgSel, plotWidth, plotHeight){
+    var data_flatten = []
+    for(var i = 0; i < data.length; i ++){
+        data_flatten = data_flatten.concat(data[i]);
+    }
+
+    var colors = ["#ffffff"/*"#ffffd9"*/,"#edf8b1","#c7e9b4","#7fcdbb",
+                  "#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
+    var colorScale = d3.scale.quantile()
+        .domain([0, 9 - 1, d3.max(data_flatten, function (d) { return d; })])
+        .range(colors);
+
+    var gridSize = Math.floor(plotWidth / data[0].length);
+
+    function setDotColors(sel) {
+        sel.attr("fill", function(d) {
+            return colorScale(d.count);
+        })
+        .attr("stroke", "#f0f0f0")
+        .attr("x", function(d, i) {
+            var x = (i%data[0].length)*gridSize;
+            return x;
+        })
+        .attr("y", function(d, i) {
+            var y = (Math.floor(i/data[0].length))*gridSize;
+            return y;
+        })
+        .attr("width", gridSize)
+        .attr("height", gridSize)
+        .on("mouseover", function(d) {
+            //console.log(d[2]);
+        });
+    }
+
+    var circleSel = svgSel.selectAll("rect").data(data_flatten).enter()
+        .append("rect")
+        .call(setDotColors);
+}
+
+function plotPCAHeatmap(data) {
+    var margin = { top: 0, right: 0, bottom: 30, left: 30 };
+    var plotWidth = 500 - margin.left - margin.right;
+    var plotHeight = 500 - margin.top - margin.bottom;
+
+    d3.select("#plotPCA").select('svg').remove();
+    var svgSel = d3.select("#plotPCA")
+        .append("svg")
+        .attr("width", plotWidth+margin.left+margin.right)
+        .attr("height", plotHeight+margin.top+margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.bottom+ ")");
+    plotHeatmap(data, svgSel, plotWidth, plotHeight);
+}
+
 function calculatePCA(uids) {
     if(uids.length > 0) {
         $.ajax({
@@ -313,7 +475,7 @@ function calculatePCA(uids) {
             data: JSON.stringify(uids),
             success: function(d) {
                 if(d.status == 'ok') {
-                    plotPCA(d.data);
+                    plotPCAHeatmap(d.data);
                 } else {
                     console.log(d.status);
                 }

@@ -356,7 +356,7 @@ def draw(a_pnts, b_pnts, filename):
 	pylab.savefig(filename)
 	pylab.clf()
 
-def histogramedPoints(data):
+def heatmappedPoints(data):
         #data = [[0,0],[1,0],[2,0]]
 
         bins = 100
@@ -381,30 +381,106 @@ def histogramedPoints(data):
 
         return hist_points
 
+def heatmap(data):
+    print(data)
+    bins = 50
+    xmin = -5
+    xmax = 5
+    step = (xmax-xmin)*1.0 / bins
+    x_edges = [ xmin+i*step for i in range(bins)]
+    heatmap = numpy.zeros((bins,bins),dtype ='int')
+
+    for p in data:
+        i = (p[0]-xmin)/step
+        j = (p[1]-xmin)/step
+        if i < bins and i >=0 and j < bins and j>= 0:
+            heatmap[i][j] += 1
+
+    return heatmap
+
+
+def EuclideanDist(m1, m2):
+    # m1 and m2 have the same shape
+    shape = m1.shape
+    dist = 0
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            dist += (m1[i][j]-m2[i][j])**2
+    return dist
+
+def alignFlip(data, target):
+    def flip_x(m):
+        return numpy.fliplr(m)
+
+    def flip_y(m):
+        return numpy.flipud(m)
+
+    def flip_xy(m):
+        return numpy.flipud(numpy.fliplr(m))
+
+    m1 = heatmap(data)
+    m2 = heatmap(target)
+    m1_x_flip = flip_x(m1)
+    m1_y_flip = flip_y(m1)
+    m1_xy_flip = flip_xy(m1)
+
+    dist_original = EuclideanDist(m1, m2)
+    dist_x_flip = EuclideanDist(m1_x_flip, m2)
+    dist_y_flip = EuclideanDist(m1_y_flip, m2)
+    dist_xy_flip = EuclideanDist(m1_xy_flip, m2)
+
+    closest_m = None
+    mindist = 1e+100
+    for m, d in [(m1, dist_original),(m1_x_flip, dist_x_flip),
+                 (m1_y_flip, dist_y_flip),(m1_xy_flip, dist_xy_flip)]:
+        if d < mindist:
+            mindist = d
+            closest_m = m
+
+    # return points
+    #bins = 100
+    #xmin = -5
+    #xmax = 5
+    #step = (xmax-xmin)*1.0 / bins
+    #x_edges = [ xmin+i*step for i in range(bins)]
+    #hist_points = []
+    #for i in range(bins):
+        #for j in range(bins):
+            #if closest_m[i][j] > 0.0:
+                #hist_points.append([round(x_edges[i],3),
+                                    #round(x_edges[j],3)])
+    result = closest_m.tolist()
+
+    return closest_m
+
 
 def align(data, target):
-    return histogramedPoints(data)
-        #data = histogramedPoints(data)
-        #target = histogramedPoints(target)
-	## TUNE ME:  threshold cost difference between iterations to determine if converged
-	#costThresh = 0.04
+    if len(target) == 0:
+        return heatmap(data)
+    else:
+        return alignFlip(data, target)
+    #return heatmappedPoints(data)
+    #data = heatmappedPoints(data)
+    #target = heatmappedPoints(target)
+    ## TUNE ME:  threshold cost difference between iterations to determine if converged
+    #costThresh = 0.04
 
-	## TUNE ME:   minimum match distance before point is discarded from consideration
-	#minMatchDist = 2.0
+    ## TUNE ME:   minimum match distance before point is discarded from consideration
+    #minMatchDist = 2.0
 
-	## plot the best fit at each iteration of the algorithm?
-	#plotIteration = False
+    ## plot the best fit at each iteration of the algorithm?
+    #plotIteration = False
 
-	#offset = [0.0,0.0,-math.pi/4]
+    #offset = [0.0,0.0,-math.pi/4]
 
-	#offset = gen_ICP(offset, data, target,
-                         #costThresh, minMatchDist, plotIteration)
+    #offset = gen_ICP(offset, data, target,
+            #costThresh, minMatchDist, plotIteration)
 
-	#data_trans = []
-	#for p in data:
-            #data_trans.append(dispPoint(p, offset))
+    #data_trans = []
+    #for p in data:
+        #data_trans.append(dispPoint(p, offset))
 
-        #return data_trans
+    #return data_trans
 
 if __name__ == '__main__':
 
