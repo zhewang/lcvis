@@ -1,5 +1,8 @@
 var objs = {};
 var pca_data;
+var lc_original;
+var lc_fit;
+var lc_error;
 var plots = {};
 
 var path = "/static/data/";
@@ -68,8 +71,11 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
             return d.uid + " *";
     });
 
-    // plot the first object when starting
-    plotObject(meta_data[0].uid, meta_data[0].P);
+    d3.json(data_dir+'/lightcurves/linear/dat.json', function(data){
+        lc_original = data;
+        // plot the first object when starting
+        plotObject(meta_data[0].uid, meta_data[0].P);
+    });
 
     // plot SDSS color-color
     plotU_G();
@@ -191,47 +197,38 @@ function plotR_I() {
 //////////////////////////////////////////////////////////////////////////////
 // plot a periodic astro-object
 function plotObject(id, period) {
-  var data_file = path + id.toString() + ".dat.json";
-  var error_file = path + id.toString() + ".error.json";
-
-  d3.json(data_file, function(json) {
-    // Load Data
-    for (var i = 0; i < json.length; ++i) {
-      json[i].time = Number(json[i].time);
-      json[i].mag = Number(json[i].mag);
-      json[i].error = Number(json[i].error);
-    }
+    var originalLC = lc_original.data[id].V
+    var error_file = path + id.toString() + ".error.json";
 
     // plot mag vs. time
-    plotTimeMag(json, 320, 200);
+    plotTimeMag(originalLC, 320, 200);
     if (period > 0) {
-      var curve_data_file = path + id.toString() + ".fit.json";
-      var points = [];
-      d3.json(curve_data_file, function(curve_data) {
-        for (var i = 0; i < curve_data[0].mag.length; ++i) {
-          points[i] = {
-            'x': Number(curve_data[0].phase[i]),
-            'y': Number(curve_data[0].mag[i])
-          };
-        }
+        var curve_data_file = path + id.toString() + ".fit.json";
+        var points = [];
+        d3.json(curve_data_file, function(curve_data) {
+            for (var i = 0; i < curve_data[0].mag.length; ++i) {
+                points[i] = {
+                    'x': Number(curve_data[0].phase[i]),
+                    'y': Number(curve_data[0].mag[i])
+                };
+            }
 
-        // plot mag vs. phase
-        plotPhaseMag(json, period, points, 330, 200);
+            // plot mag vs. phase
+            plotPhaseMag(originalLC, period, points, 330, 200);
 
-        // plot scaled mag vs. phase
-        //plotPhaseMagScaled(json, period, points, 360, 250);
+            // plot scaled mag vs. phase
+            //plotPhaseMagScaled(json, period, points, 360, 250);
 
-        d3.json(error_file, function(json) {
-          plotErrorHistogram(json, 300, 300);
+            d3.json(error_file, function(json) {
+                plotErrorHistogram(json, 300, 300);
+            });
         });
-      });
     } else {
-      // clear previous plot
-      d3.select("#right").selectAll("svg").remove();
-      plots = {}
-      plotTimeMag(json, 330, 200);
+        // clear previous plot
+        d3.select("#right").selectAll("svg").remove();
+        plots = {}
+        plotTimeMag(json, 330, 200);
     }
-  });
 
 };
 
