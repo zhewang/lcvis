@@ -259,12 +259,12 @@ function plotRaDecHeatmap(data) {
     }
 
     for(var i = 0; i < data.length; i ++){
-        var x = Math.floor((data[i].ra - xExtent[0]) / xStep);
-        var y = Math.floor((data[i].dec - yExtent[0]) / yStep);
-        if(x == 50) {x = 49;}
-        if(y == 50) {y = 49;}
-        data_heatmap[x][y].count += 1;
-        data_heatmap[x][y].uids.push(data[i].uid);
+        var c = Math.floor((data[i].ra - xExtent[0]) / xStep);
+        var r = Math.floor((data[i].dec - yExtent[0]) / yStep);
+        if(c >= heatmapSize) {c = heatmapSize-1;}
+        if(r >= heatmapSize) {r = heatmapSize-1;}
+        data_heatmap[heatmapSize-1-r][c].count += 1;
+        data_heatmap[heatmapSize-1-r][c].uids.push(data[i].uid);
     }
 
     // SVG
@@ -272,7 +272,7 @@ function plotRaDecHeatmap(data) {
     var plotWidth = 500 - margin.left - margin.right;
     var plotHeight = 500 - margin.top - margin.bottom;
 
-    d3.select("#ra_dec_scatter").select('svg').remove();
+    //d3.select("#ra_dec_scatter").select('svg').remove();
     var svgSel = d3.select("#ra_dec_scatter")
         .append("svg")
         .attr("width", plotWidth+margin.left+margin.right)
