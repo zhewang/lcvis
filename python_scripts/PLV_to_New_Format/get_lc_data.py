@@ -15,28 +15,31 @@ with open('./data/object_list.csv', newline='') as csvfile:
         period = float(row[1])
         print("Processing {}".format(obj_id))
         if period > 0:
-            # Original light curve
-            dat = json.load(open('./data/'+str(obj_id)+'.dat.json'))
-            dat_json['data'][str(obj_id)] = {'bands':['V'], 'V':dat}
+            ## Original light curve
+            #dat = json.load(open('./data/'+str(obj_id)+'.dat.json'))
+            #dat_json['data'][str(obj_id)] = {'bands':['V'], 'V':dat}
 
-            # Fitted light curve
-            fit = json.load(open('./data/'+str(obj_id)+'.fit.json'))
-            fit_json['data'][str(obj_id)] = {'bands':['V'], 'V': {'mag':fit[0]['mag']}}
+            ## Fitted light curve
+            #fit = json.load(open('./data/'+str(obj_id)+'.fit.json'))
+            #fit_json['data'][str(obj_id)] = {'bands':['V'], 'V': {'mag':fit[0]['mag']}}
 
             # Fitted error
             error = json.load(open('./data/'+str(obj_id)+'.error.json'))
+            for i in range(len(error)):
+                if error[i] != error[i]:
+                    error[i] = 0
             error_json['data'][str(obj_id)] = {'bands':['V'], 'V': error}
 
 fit_json['phase'] = phase
 error_json['phase'] = phase
 
-f = open('dat.json', 'w')
-f.write(json.dumps(dat_json))
-f.close()
+#f = open('dat.json', 'w')
+#f.write(json.dumps(dat_json))
+#f.close()
 
-f = open('fit.json', 'w')
-f.write(json.dumps(fit_json))
-f.close()
+#f = open('fit.json', 'w')
+#f.write(json.dumps(fit_json))
+#f.close()
 
 f = open('fit_error.json', 'w')
 f.write(json.dumps(error_json))

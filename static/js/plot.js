@@ -75,8 +75,11 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
         lc_original = data;
         d3.json(data_dir+'/lightcurves/linear/fit.json', function(data){
             lc_fit = data;
-            // plot the first object when starting
-            plotObject(meta_data[0].uid, meta_data[0].P);
+            d3.json(data_dir+'/lightcurves/linear/fit_error.json', function(data){
+                lc_error = data;
+                // plot the first object when starting
+                plotObject(meta_data[0].uid, meta_data[0].P);
+            });
         });
     });
 
@@ -202,6 +205,7 @@ function plotR_I() {
 function plotObject(id, period) {
     var originalLC = lc_original.data[id].V;
     var fitLC = lc_fit.data[id].V;
+    var errorLC = lc_error.data[id].V;
     var phase = lc_fit.phase;
 
     var error_file = path + id.toString() + ".error.json";
@@ -221,11 +225,9 @@ function plotObject(id, period) {
         plotPhaseMag(originalLC, period, points, 330, 200);
 
         // plot scaled mag vs. phase
-        //plotPhaseMagScaled(json, period, points, 360, 250);
+        //plotPhaseMagScaled(originalLC, period, points, 360, 250);
 
-        d3.json(error_file, function(json) {
-            plotErrorHistogram(json, 300, 300);
-        });
+        plotErrorHistogram(errorLC, 300, 300);
     } else {
         // clear previous plot
         d3.select("#right").selectAll("svg").remove();
