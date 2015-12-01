@@ -69,28 +69,22 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
     });
 
     // load attributes
-    d3.json(path + "PLV_LINEAR.json", function(data) {
+
+    d3.json(path + "PLV_SDSS.json", function(data) {
         for (var i = 0; i < data.data.length; ++i) {
             var id = data.data[i].LINEARobjectID;
-            objs[id]["LinearAttrs"] = data.data[i];
+            objs[id]["SDSS"] = data.data[i];
         }
 
-        d3.json(path + "PLV_SDSS.json", function(data) {
-            for (var i = 0; i < data.data.length; ++i) {
-                var id = data.data[i].LINEARobjectID;
-                objs[id]["SDSS"] = data.data[i];
-            }
+        // plot the first object when starting
+        plotObject(meta_data[0].uid, meta_data[0].P);
 
-            // plot the first object when starting
-            plotObject(meta_data[0].uid, meta_data[0].P);
-
-            // plot SDSS color-color
-            plotU_G();
-            plotR_I();
-
-        });
+        // plot SDSS color-color
+        plotU_G();
+        plotR_I();
 
     });
+
 
   // plot the result of PCA
   d3.json(path + "/pca.json", function(data) {
@@ -180,7 +174,7 @@ function plotU_G() {
             row[0] = ids[i];
             row[1] = objs[ids[i]].SDSS.u;
             row[2] = objs[ids[i]].SDSS.g;
-            row[3] = objs[ids[i]].LinearAttrs.LCtype;
+            row[3] = objs[ids[i]].attrs.LCtype;
             data.push(row);
         }
     }
@@ -197,7 +191,7 @@ function plotR_I() {
             row[0] = ids[i];
             row[1] = objs[ids[i]].SDSS.r;
             row[2] = objs[ids[i]].SDSS.i;
-            row[3] = objs[ids[i]].LinearAttrs.LCtype;
+            row[3] = objs[ids[i]].attrs.LCtype;
             data.push(row);
         }
     }
@@ -357,7 +351,7 @@ function plotCrossMatch(id, sel) {
             }
         }
 
-        plotCatalogs.SingleRow('LINEAR', objs[id].LinearAttrs, 12);
+        plotCatalogs.SingleRow('LINEAR', objs[id].attrs, 12);
         plotCatalogs.SingleRow('NED', d.NED, 4);
         plotCatalogs.SingleRow('IRSA', d.IRSA, 5);
         plotCatalogs.SingleRow('SIMBAD', d.SIMBAD, 4);
