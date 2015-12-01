@@ -68,23 +68,12 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
         return d.uid + " *";
     });
 
-    // load attributes
+    // plot the first object when starting
+    plotObject(meta_data[0].uid, meta_data[0].P);
 
-    d3.json(path + "PLV_SDSS.json", function(data) {
-        for (var i = 0; i < data.data.length; ++i) {
-            var id = data.data[i].LINEARobjectID;
-            objs[id]["SDSS"] = data.data[i];
-        }
-
-        // plot the first object when starting
-        plotObject(meta_data[0].uid, meta_data[0].P);
-
-        // plot SDSS color-color
-        plotU_G();
-        plotR_I();
-
-    });
-
+    // plot SDSS color-color
+    plotU_G();
+    plotR_I();
 
   // plot the result of PCA
   d3.json(path + "/pca.json", function(data) {
@@ -169,11 +158,11 @@ function plotU_G() {
     var ids = Object.keys(objs);
     data = [];
     for(var i = 0; i < ids.length; i ++){
-        if (objs[ids[i]].SDSS.u > -9.9) {
+        if (objs[ids[i]].attrs.u > -9.9) {
             row = [];
             row[0] = ids[i];
-            row[1] = objs[ids[i]].SDSS.u;
-            row[2] = objs[ids[i]].SDSS.g;
+            row[1] = objs[ids[i]].attrs.u;
+            row[2] = objs[ids[i]].attrs.g;
             row[3] = objs[ids[i]].attrs.LCtype;
             data.push(row);
         }
@@ -186,11 +175,11 @@ function plotR_I() {
     var ids = Object.keys(objs);
     data = [];
     for(var i = 0; i < ids.length; i ++){
-        if (objs[ids[i]].SDSS.u > -9.9) {
+        if (objs[ids[i]].attrs.u > -9.9) {
             row = [];
             row[0] = ids[i];
-            row[1] = objs[ids[i]].SDSS.r;
-            row[2] = objs[ids[i]].SDSS.i;
+            row[1] = objs[ids[i]].attrs.r;
+            row[2] = objs[ids[i]].attrs.i;
             row[3] = objs[ids[i]].attrs.LCtype;
             data.push(row);
         }
@@ -351,7 +340,7 @@ function plotCrossMatch(id, sel) {
             }
         }
 
-        plotCatalogs.SingleRow('LINEAR', objs[id].attrs, 12);
+        plotCatalogs.SingleRow('LINEAR', objs[id].attrs, 10);
         plotCatalogs.SingleRow('NED', d.NED, 4);
         plotCatalogs.SingleRow('IRSA', d.IRSA, 5);
         plotCatalogs.SingleRow('SIMBAD', d.SIMBAD, 4);
@@ -850,8 +839,8 @@ function plotPCA(data) {
     changePlot(d[3]);
 
     //show other information associated with this dot
-    sdss = (objs[d[3]].SDSS);
-    var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + sdss.RA + '&dec=' + sdss.Dec + '&scale=0.4&width=280&height=280&opt=L&query=&Label=on';
+    attrs = objs[d[3]].attrs;
+    var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + attrs.ra + '&dec=' + attrs.dec + '&scale=0.4&width=280&height=280&opt=L&query=&Label=on';
     d3.select("#obj_img").append("img")
       .attr('src', imgsrc);
 
