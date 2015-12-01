@@ -14,6 +14,10 @@ for d in sdss_list:
     entry['uid'] = uid
     entry['ra'] = d['RA']
     entry['dec'] = d['Dec']
+    entry['u'] = d['u']
+    entry['g'] = d['g']
+    entry['r'] = d['r']
+    entry['i'] = d['i']
     meta_list.append(entry)
 
 meta_json = {'data': meta_list}
