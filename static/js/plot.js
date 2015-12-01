@@ -73,8 +73,11 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
 
     d3.json(data_dir+'/lightcurves/linear/dat.json', function(data){
         lc_original = data;
-        // plot the first object when starting
-        plotObject(meta_data[0].uid, meta_data[0].P);
+        d3.json(data_dir+'/lightcurves/linear/fit.json', function(data){
+            lc_fit = data;
+            // plot the first object when starting
+            plotObject(meta_data[0].uid, meta_data[0].P);
+        });
     });
 
     // plot SDSS color-color
@@ -197,31 +200,31 @@ function plotR_I() {
 //////////////////////////////////////////////////////////////////////////////
 // plot a periodic astro-object
 function plotObject(id, period) {
-    var originalLC = lc_original.data[id].V
+    var originalLC = lc_original.data[id].V;
+    var fitLC = lc_fit.data[id].V;
+    var phase = lc_fit.phase;
+
     var error_file = path + id.toString() + ".error.json";
 
     // plot mag vs. time
     plotTimeMag(originalLC, 320, 200);
     if (period > 0) {
-        var curve_data_file = path + id.toString() + ".fit.json";
         var points = [];
-        d3.json(curve_data_file, function(curve_data) {
-            for (var i = 0; i < curve_data[0].mag.length; ++i) {
-                points[i] = {
-                    'x': Number(curve_data[0].phase[i]),
-                    'y': Number(curve_data[0].mag[i])
-                };
-            }
+        for (var i = 0; i < fitLC.mag.length; ++i) {
+            points[i] = {
+                'x': Number(phase[i]),
+                'y': Number(fitLC.mag[i])
+            };
+        }
 
-            // plot mag vs. phase
-            plotPhaseMag(originalLC, period, points, 330, 200);
+        // plot mag vs. phase
+        plotPhaseMag(originalLC, period, points, 330, 200);
 
-            // plot scaled mag vs. phase
-            //plotPhaseMagScaled(json, period, points, 360, 250);
+        // plot scaled mag vs. phase
+        //plotPhaseMagScaled(json, period, points, 360, 250);
 
-            d3.json(error_file, function(json) {
-                plotErrorHistogram(json, 300, 300);
-            });
+        d3.json(error_file, function(json) {
+            plotErrorHistogram(json, 300, 300);
         });
     } else {
         // clear previous plot
