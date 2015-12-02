@@ -21,6 +21,7 @@ for d in sdss_list:
     meta_list.append(entry)
 
 meta_json = {'data': meta_list}
+meta_json['survey'] = 'linear'
 f = open('linear_meta.json', 'w')
 f.write(json.dumps(meta_json))
 f.close()
