@@ -42,11 +42,21 @@ if __name__ == '__main__':
     GLOBAL_PHASE = None
     matrix = []
     obj_ids = []
-    surveys = ['ogle1', 'ogle2', 'ogle4']
+    obj_types = {}
+    surveys = ['linear', 'ogle1', 'ogle2', 'ogle4']
 
     for s in surveys:
         path = "./lightcurves/{}/fit.json".format(s)
         data = json.load(open(path))
+
+        meta_path = '{}_meta.json'.format(s)
+        meta = json.load(open(meta_path))
+        for d in meta['data']:
+            if s == "linear":
+                obj_types[str(d['uid'])] = d['LCtype']
+            else:
+                obj_types[d['uid']] = d['type']
+
         for objid in data['data']:
             bands = data['data'][objid]['bands']
             if args.band in bands:
@@ -72,6 +82,9 @@ if __name__ == '__main__':
     matrix.shape = (len(matrix), len(GLOBAL_PHASE))
 
     data = pca(obj_ids, matrix)
+
+    for i in range(len(data)):
+        data[i].append(str(obj_types[data[i][2]]))
 
     f_out = open('./pca.json', 'w')
     f_out.write(json.dumps(data))

@@ -1,4 +1,5 @@
 var objs = {};
+var objIDList = [];
 var pca_data;
 var lc_original = {'data':{}};
 var lc_fit = {'data': {}};
@@ -37,90 +38,95 @@ d3.selection.prototype.moveToFront = function() {
     });
 };
 
-d3.json(data_dir+ "/linear_meta.json", function(data) {
-    var meta_data = data['data']
-    for(var i = 0; i < meta_data.length; i ++){
-        objs[meta_data[i].uid] = {'period': Number(meta_data[i].P),
-            'index': i,
-        'attrs': meta_data[i]};
+var surveyList = ['linear', 'ogle1', 'ogle2', 'ogle4'];
+var loadCount = surveyList.length*4;
+var doAfterLoading = function(loadCount){
+    if(loadCount == 0) {
+        var select = d3.select("#selection").append("select");
+
+        select.on("change", function() {
+            var id = this.options[this.selectedIndex].text.split(" ")[0];
+            var period = this.options[this.selectedIndex].value;
+
+            changePlot(id);
+        });
+
+        select.selectAll("option")
+        .data(objIDList)
+        .enter()
+        .append("option")
+        .attr("id", function(d) {
+            return objs[d].attrs.uid;
+        })
+        .attr("value", function(d) {
+            return objs[d].period;
+        })
+        .text(function(d) {
+            if (objs[d].period> 0)
+                return objs[d].attrs.uid;
+            else
+                return objs[d].attrs.uid + " *";
+        });
+
+        // plot the first object when starting
+        plotObject(objs[objIDList[0]].attrs.uid,
+                   objs[objIDList[0]].period);
+
+        // plot SDSS color-color
+        plotU_G();
+        plotR_I();
+
+        // plot the result of PCA
+        d3.json(path + "/pca.json", function(data) {
+            pca_data = data;
+            plotPCA(data);
+        });
     }
+};
 
-    var select = d3.select("#selection").append("select");
+for(var i = 0; i < surveyList.length; ++i) {
+    var meta_path = data_dir+ "/"+surveyList[i]+"_meta.json";
+    var dat_path = data_dir+'/lightcurves/'+surveyList[i]+'/dat.json'
+    var fit_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit.json'
+    var fit_error_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit_error.json'
 
-    select.on("change", function() {
-        var id = this.options[this.selectedIndex].text.split(" ")[0];
-        var period = this.options[this.selectedIndex].value;
-
-        changePlot(id);
-    });
-
-    select.selectAll("option")
-    .data(meta_data)
-    .enter()
-    .append("option")
-    .attr("id", function(d) {
-        return d.uid;
-    })
-    .attr("value", function(d) {
-        return d.P;
-    })
-    .text(function(d) {
-        if (d.P> 0)
-            return d.uid;
-        else
-            return d.uid + " *";
-    });
-
-    var surveyList = ['linear', 'ogle1', 'ogle2', 'ogle4'];
-    var loadCount = surveyList.length*3;
-    var doAfterLoading = function(loadCount){
-        if(loadCount == 0) {
-            // plot the first object when starting
-            plotObject(meta_data[0].uid, meta_data[0].P);
+    d3.json(meta_path, function(data) {
+        var meta_data = data['data']
+        for(var i = 0; i < meta_data.length; i ++){
+            objs[meta_data[i].uid] = {'period': Number(meta_data[i].P),
+                                      'index': i,
+                                      'attrs': meta_data[i]};
+            objIDList.push(meta_data[i].uid);
         }
-    };
-
-    for(var i = 0; i < surveyList.length; ++i) {
-        var dat_path = data_dir+'/lightcurves/'+surveyList[i]+'/dat.json'
-        var fit_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit.json'
-        var fit_error_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit_error.json'
-
-        d3.json(dat_path, function(d){
-            for(var attrname in d['data']) {
-                lc_original['data'][attrname] = d['data'][attrname];
-            }
-            loadCount --;
-            doAfterLoading(loadCount);
-        });
-        d3.json(fit_path, function(d){
-            for(var attrname in d['data']){
-                lc_fit['data'][attrname] = d['data'][attrname];
-            }
-            lc_fit['phase'] = d['phase'];
-            loadCount --;
-            doAfterLoading(loadCount);
-        });
-        d3.json(fit_error_path, function(d){
-            for(var attrname in d['data']){
-                lc_error['data'][attrname] = d['data'][attrname];
-            }
-            lc_error['phase'] = d['phase'];
-            loadCount --;
-            doAfterLoading(loadCount);
-        });
-    }
-
-    // plot SDSS color-color
-    plotU_G();
-    plotR_I();
-
-    // plot the result of PCA
-    d3.json(path + "/pca.json", function(data) {
-        pca_data = data;
-        plotPCA(data);
+        loadCount --;
+        doAfterLoading(loadCount);
     });
 
-});
+    d3.json(dat_path, function(d){
+        for(var attrname in d['data']) {
+            lc_original['data'][attrname] = d['data'][attrname];
+        }
+        loadCount --;
+        doAfterLoading(loadCount);
+    });
+    d3.json(fit_path, function(d){
+        for(var attrname in d['data']){
+            lc_fit['data'][attrname] = d['data'][attrname];
+        }
+        lc_fit['phase'] = d['phase'];
+        loadCount --;
+        doAfterLoading(loadCount);
+    });
+    d3.json(fit_error_path, function(d){
+        for(var attrname in d['data']){
+            lc_error['data'][attrname] = d['data'][attrname];
+        }
+        lc_error['phase'] = d['phase'];
+        loadCount --;
+        doAfterLoading(loadCount);
+    });
+}
+
 
 function plot2DScatter(data, sel, title) {
     var xExtent = d3.extent(data, function(row) {
@@ -520,6 +526,17 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
 }
 
 function plotPhaseMag(data, period, curve_points, width, height) {
+    var sum = 0;
+    for(var i = 0; i < data.length; i ++){
+        data[i].mag = Number(data[i].mag);
+        data[i].error = Number(data[i].error);
+        data[i].time = Number(data[i].time);
+        sum += data[i].mag;
+    }
+    var averageMag = sum/data.length;
+    for(var i = 0; i < data.length; i ++){
+        data[i].mag -= averageMag;
+    }
   if (!plots.phaseMag) {
     plots.phaseMag = createPhaseMagPlot(data, period, curve_points, width, height);
   }
@@ -752,11 +769,15 @@ function plotPCA(data) {
   var plotWidth = 600;
   var plotHeight = 600;
 
+  xExtent = [-10, 10];
+  yExtent = [-10, 10];
+
   var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth - 30]);
   var yScale = d3.scale.linear().domain(yExtent).range([plotHeight - 30, 30]);
   var xAxis = d3.svg.axis().scale(xScale).ticks(5);
   var yAxis = d3.svg.axis().scale(yScale).ticks(5);
-  var colorScale = d3.scale.ordinal().domain([1, 2, 4, 5, 6, 3, 7, 8, 9, 11, 0, -1]).range([
+  var colorScale = d3.scale.ordinal()
+    .domain(['1', '2', '4', '5', '6', '3', '7', '8', '9', '11', '0', '-1']).range([
     "#e41a1c",
     "#377eb8",
     "#4daf4a",
@@ -824,7 +845,7 @@ function plotPCA(data) {
 
   function setDotColors(sel) {
     sel.attr("fill", function(d) {
-        return colorScale(d[2]);
+        return colorScale(d[3]);
       })
       .attr("fill-opacity", 0.3)
       .attr("stroke", "none")
@@ -835,12 +856,12 @@ function plotPCA(data) {
         return yScale(d[1]);
       })
       .attr("r", function(d) {
-        return d[2] < 0 ? 6 : 3;
+        return d[3] < 0 ? 6 : 3;
       })
       .classed("clickable", true)
       .on("mouseover", function(d) {
         if (pinnedDotSel === null)
-          changePlot(d[3]);
+          changePlot(d[2]);
       })
       .on('click', highlightDot);
   }
@@ -865,22 +886,22 @@ function plotPCA(data) {
       .classed('pinned', true)
       .moveToFront();
 
-    changePlot(d[3]);
+    changePlot(d[2]);
 
     //show other information associated with this dot
-    attrs = objs[d[3]].attrs;
+    attrs = objs[d[2]].attrs;
     var imgsrc = 'http://skyservice.pha.jhu.edu/DR12/ImgCutout/getjpeg.aspx?ra=' + attrs.ra + '&dec=' + attrs.dec + '&scale=0.4&width=280&height=280&opt=L&query=&Label=on';
     d3.select("#obj_img").append("img")
       .attr('src', imgsrc);
 
       // plot external catalog info
-      plotAttribute(d[3]);
+      plotAttribute(d[2]);
   }
 
   function unhighlightDot(sel) {
     sel.attr("fill-opacity", 0.3)
       .attr("r", function(d) {
-        return d[2] < 0 ? 6 : 3;
+        return d[3] < 0 ? 6 : 3;
       })
       .attr('stroke', 'none')
       .classed('pinned', false);
@@ -912,7 +933,7 @@ function plotPCA(data) {
 
     var s = allCircles;
     s.filter(function(d) {
-        return d[2] !== type;
+        return d[3] !== type;
       })
       .attr("fill", "gray")
       .attr("fill-opacity", 0.1)
@@ -922,28 +943,16 @@ function plotPCA(data) {
       })
       .on("mouseover", function(d) {});
     s.filter(function(d) {
-        return d[2] === type;
+        return d[3] === type;
       })
       .attr("fill", colorScale(type))
       .attr("fill-opacity", 0.5)
       .classed("clickable", true)
       .on("mouseover", function(d) {
         if (pinnedDotSel === null)
-          changePlot(d[3]);
-      });
-    s.sort(function(a, b) {
-      if (a[2] !== type) {
-        a = -1;
-      } else {
-        a = 1;
-      }
-      if (b[2] !== type) {
-        b = -1;
-      } else {
-        b = 1;
-      }
-      return d3.ascending(a, b);
-    });
+          changePlot(d[2]);
+      })
+      .moveToFront();
   });
 
   svgSel.append("g")
