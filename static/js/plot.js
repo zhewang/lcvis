@@ -255,7 +255,7 @@ function plotObject(id, period) {
         }
 
         // plot mag vs. phase
-        plotPhaseMag(originalLC, period, points, 330, 200);
+        plotPhaseMag(originalLC, period, points, fitLC.shift, 330, 200);
 
         // plot scaled mag vs. phase
         //plotPhaseMagScaled(originalLC, period, points, 360, 250);
@@ -525,7 +525,8 @@ function createPhaseMagPlot(data, period, curve_points, width, height) {
   return plot;
 }
 
-function plotPhaseMag(data, period, curve_points, width, height) {
+function plotPhaseMag(data, period, curve_points, shift, width, height) {
+    // Normalize mag
     var sum = 0;
     for(var i = 0; i < data.length; i ++){
         data[i].mag = Number(data[i].mag);
@@ -537,6 +538,7 @@ function plotPhaseMag(data, period, curve_points, width, height) {
     for(var i = 0; i < data.length; i ++){
         data[i].mag -= averageMag;
     }
+
   if (!plots.phaseMag) {
     plots.phaseMag = createPhaseMagPlot(data, period, curve_points, width, height);
   }
@@ -621,6 +623,17 @@ function plotPhaseMag(data, period, curve_points, width, height) {
   }
   curve_points = front_data.concat(curve_points, end_data);
 
+  //var translate = "translate(0,0)";
+
+  // Shift back fitted curve
+  //if(shift != null){
+    //curve_points.sort(function(a,b){
+        //return a.x - b.x;
+    //});
+    //var shiftPixels = plot.xScale(0) - plot.xScale(curve_points[shift].x);
+    //console.log(shiftPixels);
+    //translate = "translate("+shiftPixels.toString()+", 0)";
+  //}
   plot.curveSel.selectAll("path").remove();
   plot.curveSel.append('path')
     .attr('d', lineFunction(curve_points))

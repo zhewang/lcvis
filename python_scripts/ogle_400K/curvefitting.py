@@ -32,7 +32,7 @@ def norm(mag):
 
     result_mag = mag[iPeak:]+mag[:iPeak]
 
-    return result_mag
+    return result_mag, iPeak
 
 
 def fillNaN(y):
@@ -77,9 +77,10 @@ def fitcurve(lc_data_all_band, period):
 
         if len(y) > 0:
             y = fillNaN(y)
-            y = norm(y)
+            y, shift = norm(y)
             y = [round(d, 6) for d in y]
             data["mag"] = y
+            data['shift'] = shift
 
             residual = model.predict(xdata) - ydata
             for e in residual:
