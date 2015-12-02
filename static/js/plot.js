@@ -76,7 +76,6 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
     var doAfterLoading = function(loadCount){
         if(loadCount == 0) {
             // plot the first object when starting
-            console.log("Plot first");
             plotObject(meta_data[0].uid, meta_data[0].P);
         }
     };
@@ -87,7 +86,6 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
         var fit_error_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit_error.json'
 
         d3.json(dat_path, function(d){
-            console.log(d);
             for(var attrname in d['data']) {
                 lc_original['data'][attrname] = d['data'][attrname];
             }
@@ -95,7 +93,6 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
             doAfterLoading(loadCount);
         });
         d3.json(fit_path, function(d){
-            console.log(d);
             for(var attrname in d['data']){
                 lc_fit['data'][attrname] = d['data'][attrname];
             }
@@ -104,7 +101,6 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
             doAfterLoading(loadCount);
         });
         d3.json(fit_error_path, function(d){
-            console.log(d);
             for(var attrname in d['data']){
                 lc_error['data'][attrname] = d['data'][attrname];
             }
