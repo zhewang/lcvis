@@ -1,8 +1,8 @@
 var objs = {};
 var pca_data;
-var lc_original;
-var lc_fit;
-var lc_error;
+var lc_original = {'data':{}};
+var lc_fit = {'data': {}};
+var lc_error = {'data': {}};
 var plots = {};
 
 var path = "/static/data/";
@@ -71,17 +71,48 @@ d3.json(data_dir+ "/linear_meta.json", function(data) {
             return d.uid + " *";
     });
 
-    d3.json(data_dir+'/lightcurves/linear/dat.json', function(data){
-        lc_original = data;
-        d3.json(data_dir+'/lightcurves/linear/fit.json', function(data){
-            lc_fit = data;
-            d3.json(data_dir+'/lightcurves/linear/fit_error.json', function(data){
-                lc_error = data;
-                // plot the first object when starting
-                plotObject(meta_data[0].uid, meta_data[0].P);
-            });
+    var surveyList = ['linear', 'ogle1', 'ogle2', 'ogle4'];
+    var loadCount = surveyList.length*3;
+    var doAfterLoading = function(loadCount){
+        if(loadCount == 0) {
+            // plot the first object when starting
+            console.log("Plot first");
+            plotObject(meta_data[0].uid, meta_data[0].P);
+        }
+    };
+
+    for(var i = 0; i < surveyList.length; ++i) {
+        var dat_path = data_dir+'/lightcurves/'+surveyList[i]+'/dat.json'
+        var fit_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit.json'
+        var fit_error_path = data_dir+'/lightcurves/'+surveyList[i]+'/fit_error.json'
+
+        d3.json(dat_path, function(d){
+            console.log(d);
+            for(var attrname in d['data']) {
+                lc_original['data'][attrname] = d['data'][attrname];
+            }
+            loadCount --;
+            doAfterLoading(loadCount);
         });
-    });
+        d3.json(fit_path, function(d){
+            console.log(d);
+            for(var attrname in d['data']){
+                lc_fit['data'][attrname] = d['data'][attrname];
+            }
+            lc_fit['phase'] = d['phase'];
+            loadCount --;
+            doAfterLoading(loadCount);
+        });
+        d3.json(fit_error_path, function(d){
+            console.log(d);
+            for(var attrname in d['data']){
+                lc_error['data'][attrname] = d['data'][attrname];
+            }
+            lc_error['phase'] = d['phase'];
+            loadCount --;
+            doAfterLoading(loadCount);
+        });
+    }
 
     // plot SDSS color-color
     plotU_G();
