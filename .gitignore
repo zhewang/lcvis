@@ -1,6 +1,7 @@
 data
 data_*
 *.json
+*.dat
 *.txt
 *.pyc
 .ropeproject
