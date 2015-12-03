@@ -782,15 +782,17 @@ function plotPCA(data) {
   var plotWidth = 600;
   var plotHeight = 600;
 
-  xExtent = [-10, 10];
-  yExtent = [-10, 10];
+  xExtent = [-30, 30];
+  yExtent = [-30, 30];
 
   var xScale = d3.scale.linear().domain(xExtent).range([50, plotWidth - 30]);
   var yScale = d3.scale.linear().domain(yExtent).range([plotHeight - 30, 30]);
   var xAxis = d3.svg.axis().scale(xScale).ticks(5);
   var yAxis = d3.svg.axis().scale(yScale).ticks(5);
   var colorScale = d3.scale.ordinal()
-    .domain(['1', '2', '4', '5', '6', '3', '7', '8', '9', '11', '0', '-1']).range([
+    .domain(['1', '2', '4', '5', '6', '3', '7', '8', '9', '11', '0', '-1',
+             'ecl', 'misc', 'rrlyr', 'lpv'])
+    .range([
     "#e41a1c",
     "#377eb8",
     "#4daf4a",
@@ -802,10 +804,17 @@ function plotPCA(data) {
     "#00ffff",
     "#00ffff",
     "#00ffff",
-    "black"
+    "black",
+    "#fbb4ae",
+    "#b3cde3",
+    "#ccebc5",
+    "#decbe4"
   ]);
 
-  var namesScale = d3.scale.ordinal().domain([1, 2, 4, 5, 6, 3, 7, 8, 9, 11, 0]).range([
+  var namesScale = d3.scale.ordinal()
+    .domain(['1', '2', '4', '5', '6', '3', '7', '8', '9', '11', '0','-1',
+             'ecl', 'misc', 'rrlyr', 'lpv'])
+    .range([
     "RR Lyr ab",
     "RR Lyr c",
     "Algol-like with 2 minima",
@@ -817,7 +826,11 @@ function plotPCA(data) {
     "BL Her",
     "anomalous Cepheids",
     "other",
-    "User Added Object"
+    "User Added Object",
+    "ECL(OGLE)",
+    "MISC(OGLE)",
+    "RRLYR(OGLE)",
+    "LPV(OGLE)"
   ]);
 
   d3.select("#plotPCA").select('svg').remove();
@@ -826,7 +839,7 @@ function plotPCA(data) {
     .attr("width", plotWidth)
     .attr("height", plotHeight);
 
-  var legendSel = svgSel.append("g").attr("transform", "translate(60,420)");
+  var legendSel = svgSel.append("g").attr("transform", "translate(60,390)");
   var legendG = legendSel.selectAll("g")
     .data(colorScale.domain())
     .enter()
