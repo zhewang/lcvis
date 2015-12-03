@@ -48,7 +48,7 @@ def project(lc, p):
     sampled = fitcurve(lcdata, period)
     shifted_mag = loadMagData(sampled[0]['mag'], sampled[0]['phase'])
 
-    with open('./pca_result.dat', 'rb') as f:
+    with open('./static/data_ogle/pca_model.dat', 'rb') as f:
         pca_result = pickle.load(f)
 
     result = pca_result.project(shifted_mag)

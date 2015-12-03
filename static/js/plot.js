@@ -6,7 +6,6 @@ var lc_fit = {'data': {}};
 var lc_error = {'data': {}};
 var plots = {};
 
-var path = "/static/data/";
 var data_dir = "/static/data_ogle/"
 // var path = "data_10/";
 
@@ -77,7 +76,7 @@ var doAfterLoading = function(loadCount){
         plotR_I();
 
         // plot the result of PCA
-        d3.json(path + "/pca.json", function(data) {
+        d3.json(data_dir + "/pca.json", function(data) {
             pca_data = data;
             plotPCA(data);
         });
@@ -241,8 +240,6 @@ function plotObject(id, period) {
     var errorLC = lc_error.data[id].V;
     var phase = lc_fit.phase;
 
-    var error_file = path + id.toString() + ".error.json";
-
     // plot mag vs. time
     plotTimeMag(originalLC, 320, 200);
     if (period > 0) {
@@ -292,7 +289,7 @@ function setCellStyle(sel) {
 }
 
 function plotCrossMatch(id, sel) {
-    d3.json(path+'/external_associations_json/'+id+'.external.json', function(error, d) {
+    d3.json(data_dir+'/external_associations_json/'+id+'.external.json', function(error, d) {
         if (error) return console.log("No cross match data.");
 
         var plotCatalogs = {};
