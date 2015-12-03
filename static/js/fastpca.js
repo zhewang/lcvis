@@ -51,6 +51,10 @@ function plotHist(original_data, attr) {
             values.push(original_data[i][attr]);
     }
 
+    if(values.length == 0){
+        return;
+    }
+
     // A formatter for counts.
     var formatCount = d3.format(",.0f");
     var xExtent = d3.extent(values, function(d){return d;});

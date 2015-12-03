@@ -55,6 +55,7 @@ def calculate_average_lc():
 
     matrix = []
     for i in uids:
+        i = str(i)
         if i in LCDATA:
             if band in LCDATA[i]['bands']:
                 vec = LCDATA[i][band]['mag']
@@ -85,13 +86,15 @@ def get_data_by_id(ids, band='V'):
     ids_exist = []  # some id may not have lc data
     matrix = []
     status = 'ok'
+
     for i in ids:
+        i = str(i)
         if i in LCDATA:
             if band in LCDATA[i]['bands']:
                 vec = LCDATA[i][band]['mag']
                 if len(vec) > 0:
                     ids_exist.append(i)
-                    matrix.append(LCDATA[i][band]['mag'])
+                    matrix.append(vec)
 
     if len(matrix) == 0:
         return ids_exist, matrix, 'no light curve data'
@@ -108,11 +111,8 @@ def get_data_by_id(ids, band='V'):
 
     return ids_exist, matrix, status
 
-
-
 LCDATA, LCPHASE = load_lc_data()
 LAST_PCA = []
-
 
 
 app.run(port=8080, debug=True)

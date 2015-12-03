@@ -382,10 +382,9 @@ def heatmappedPoints(data):
         return hist_points
 
 def heatmap(data):
-    print(data)
     bins = 50
-    xmin = -5
-    xmax = 5
+    xmin = -20
+    xmax = 20
     step = (xmax-xmin)*1.0 / bins
     x_edges = [ xmin+i*step for i in range(bins)]
     heatmap = numpy.zeros((bins,bins),dtype ='int')
@@ -394,7 +393,7 @@ def heatmap(data):
         i = (p[0]-xmin)/step
         j = (p[1]-xmin)/step
         if i < bins and i >=0 and j < bins and j>= 0:
-            heatmap[i][j] += 1
+            heatmap[j][i] += 1
 
     return heatmap
 
